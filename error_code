@@ -1,0 +1,4 @@
+code	|		meaning
+----------------------------------------------
+-1		|	unexpected end of file
+-2		|	unrecognized charactor or symbol
