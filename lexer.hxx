@@ -35,15 +35,15 @@ struct Token
 	std::string s;
 };
 
-extern const map<std::string,TokenType> word;
-extern const map<std::string,TokenType> symb;
-
 class Lexer
 {
 	public:
-		Lexer(FILE *file);
+		Lexer(char file[]);
+		~Lexer();
 		Token NextToken();
 	private:
+		static const map<std::string,TokenType> word;
+		static const map<std::string,TokenType> symb;
 		FILE *src;
 		int chr;
 		Token token;

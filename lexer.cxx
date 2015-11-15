@@ -9,7 +9,7 @@
 
 #include "lexer.hxx"
 
-const map<std::string,TokenType> word=
+const map<std::string,TokenType> Lexer::word=
 {
 	{"read",readsym},{"write",writesym},
 	{"integer",intsym},{"char",charsym},{"array",arraysym},
@@ -20,7 +20,7 @@ const map<std::string,TokenType> word=
 	{"if",ifsym},{"then",thensym},{"else",elsesym}
 };
 
-const map<std::string,TokenType> symb=
+const map<std::string,TokenType> Lexer::symb=
 {
 	{":=",become},{"+",plus},{"-",minus},{"*",times},{"/",slash},
 	{"=",eql},{"<>",neq},{"<",lss},{"<=",leq},{">",gtr},{">=",geq},
@@ -28,12 +28,16 @@ const map<std::string,TokenType> symb=
 	{":",colon},{",",comma},{";",semicolon},{".",period}
 };
 
-Lexer::Lexer(FILE *file)
+Lexer::Lexer(char file[])
 {
-	src=file;
+	src=fopen(file,"r");
+	if (!src) exit(-3);
 	chr=fgetc(src);
 }
-
+Lexer::~Lexer()
+{
+	fclose(src);
+}
 Token Lexer::NextToken()
 {
 	while (isspace(chr)) chr=fgetc(src);
