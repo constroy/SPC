@@ -114,7 +114,7 @@ Token Lexer::NextToken()
 		{
 			buff+=chr;
 			chr=fgetc(src);
-			if (ispunct(chr) && (chr=='=' || chr=='>') )
+			if (chr=='=' || chr=='>')
 			{
 				buff+=chr;
 				chr=fgetc(src);
