@@ -85,6 +85,7 @@ Token Lexer::NextToken()
 			{
 				token.type=character;
 				token.v=chr;
+				chr=fgetc(src);
 			}
 			else
 			{
