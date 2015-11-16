@@ -15,7 +15,7 @@ int main(int argc,char *argv[])
 	if (argc!=3)
 	{
 		puts("usage: spc [src_name] [obj_name]");
-		exit(-1);
+		return 0;
 	}
 	Token token;
 	Lexer lexer(argv[1]);
@@ -24,12 +24,14 @@ int main(int argc,char *argv[])
 	{
 		"ident",
 		"number","character","string",
-		"readsym","writesym",
-		"intsym","charsym","arraysym",
-		"constsym","varsym","funcsym","procsym",
-		"become","plus","minus","times","slash","eql","neq","lss","leq","gtr","geq",
+		"word_read","word_write",
+		"word_int","word_char","word_array","word_of",
+		"word_const","word_var","word_func","word_proc",
+		"word_do","word_while","word_for","word_to","word_downto",
+		"word_if","word_then","word_else","word_begin","word_end",
+		"assign","plus","minus","times","slash","eql","neq","lss","leq","gtr","geq",
 		"lbracket","rbracket","lparen","rparen","colon","comma","semicolon","period",
-		"beginsym","endsym","dosym","whilesym","forsym","tosym","downtosym","ifsym","thensym","elsesym"
+
 	};
 	freopen(argv[2],"w",stdout);
 	do

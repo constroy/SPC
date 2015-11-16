@@ -11,18 +11,20 @@
 
 const map<std::string,TokenType> Lexer::word=
 {
-	{"read",readsym},{"write",writesym},
-	{"integer",intsym},{"char",charsym},{"array",arraysym},
-	{"const",constsym},{"var",varsym},
-	{"function",funcsym},{"procedure",procsym},
-	{"begin",beginsym},{"end",endsym},{"do",dosym},{"while",whilesym},
-	{"for",forsym},{"to",tosym},{"downto",downtosym},
-	{"if",ifsym},{"then",thensym},{"else",elsesym}
+	{"read",word_read},{"write",word_write},
+	{"const",word_const},{"var",word_var},
+	{"integer",word_int},{"char",word_char},
+	{"array",word_array},{"of",word_of},
+	{"function",word_func},{"procedure",word_proc},
+	{"begin",word_begin},{"end",word_end},
+	{"do",word_do},{"while",word_while},
+	{"for",word_for},{"to",word_to},{"downto",word_downto},
+	{"if",word_if},{"then",word_then},{"else",word_else}
 };
 
 const map<std::string,TokenType> Lexer::symb=
 {
-	{":=",become},{"+",plus},{"-",minus},{"*",times},{"/",slash},
+	{":=",assign},{"+",plus},{"-",minus},{"*",times},{"/",slash},
 	{"=",eql},{"<>",neq},{"<",lss},{"<=",leq},{">",gtr},{">=",geq},
 	{"[",lbracket},{"]",rbracket},{"(",lparen},{")",rparen},
 	{":",colon},{",",comma},{";",semicolon},{".",period}
@@ -31,8 +33,9 @@ const map<std::string,TokenType> Lexer::symb=
 Lexer::Lexer(char file[])
 {
 	src=fopen(file,"r");
-	if (!src) exit(-3);
-	chr=fgetc(src);
+	if (!src) exit(-3);//Error
+	row=1,col=0;
+	read();
 }
 Lexer::~Lexer()
 {
@@ -40,7 +43,7 @@ Lexer::~Lexer()
 }
 Token Lexer::NextToken()
 {
-	while (isspace(chr)) chr=fgetc(src);
+	while (isspace(chr)) read();
 	if (chr==EOF)
 	{
 		exit(-1);
@@ -51,7 +54,7 @@ Token Lexer::NextToken()
 		while (isalnum(chr))
 		{
 			buff+=chr;
-			chr=fgetc(src);
+			read();
 		}
 		if (word.count(buff))
 		{
@@ -70,7 +73,7 @@ Token Lexer::NextToken()
 		while (isdigit(chr))
 		{
 			num=num*10+chr-'0';
-			chr=fgetc(src);
+			read();
 		}
 		token.type=number;
 		token.v=num;
@@ -80,12 +83,12 @@ Token Lexer::NextToken()
 		std::string buff;
 		if (chr=='\'')
 		{
-			chr=fgetc(src);
+			read();
 			if (isalnum(chr) && fgetc(src)=='\'')
 			{
 				token.type=character;
 				token.v=chr;
-				chr=fgetc(src);
+				read();
 			}
 			else
 			{
@@ -94,17 +97,17 @@ Token Lexer::NextToken()
 		}
 		else if (chr=='"')
 		{
-			chr=fgetc(src);
+			read();
 			while (isprint(chr) && chr!='"')
 			{
 				buff+=chr;
-				chr=fgetc(src);
+				read();
 			}
 			if (chr=='"')
 			{
-				chr=fgetc(src);
 				token.type=string;
 				token.s=buff;
+				read();
 			}
 			else
 			{
@@ -114,11 +117,11 @@ Token Lexer::NextToken()
 		else
 		{
 			buff+=chr;
-			chr=fgetc(src);
+			read();
 			if (chr=='=' || chr=='>')
 			{
 				buff+=chr;
-				chr=fgetc(src);
+				read();
 			}
 			if (symb.count(buff))
 			{
@@ -136,4 +139,12 @@ Token Lexer::NextToken()
 		exit(-2);
 	}
 	return token;
+}
+
+void Lexer::read()
+{
+	chr=fgetc(src);
+	if (chr=='\n') ++row,col=0;
+	else ++col;
+	if (chr==EOF) ;//TODO:Error;
 }
