@@ -13,15 +13,15 @@ The following is the syntax rules of the model language defined in EBNF:
 
 	block = [ "const" ident "=" number {"," ident "=" number} ";"]
 		    [ "var" ident {"," ident} ";"]
-		    { "procedure" ident ";" block ";" } 
+		    { "procedure" ident ";" block ";" }
 		    { "function" ident ";" block ";" }
 		    statement.
 
 	statement = [ ident ":=" expression
-		          | "begin" statement { ";" statement } "end" 
-		          | "if" condition "then" statement [ "else" statement ] 
-		          | "do" statement "while" condition ]
-		          | "for" ident ":=" expression "to|downto" expression "do" statement.
+		          | "begin" statement { ";" statement } "end"
+		          | "if" condition "then" statement [ "else" statement ]
+		          | "do" statement "while" condition
+		          | "for" ident ":=" expression "to|downto" expression "do" statement].
 
 	condition = expression ("="|"<>"|"<"|"<="|">"|">=") expression .
 
