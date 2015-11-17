@@ -9,7 +9,8 @@
 
 #include "lexer.hxx"
 
-const map<std::string,TokenType> Lexer::word=
+
+const std::map<std::string,TokenType> Lexer::word=
 {
 	{"read",word_read},{"write",word_write},
 	{"const",word_const},{"var",word_var},
@@ -22,7 +23,7 @@ const map<std::string,TokenType> Lexer::word=
 	{"if",word_if},{"then",word_then},{"else",word_else}
 };
 
-const map<std::string,TokenType> Lexer::symb=
+const std::map<std::string,TokenType> Lexer::symb=
 {
 	{":=",assign},{"+",plus},{"-",minus},{"*",times},{"/",slash},
 	{"=",eql},{"<>",neq},{"<",lss},{"<=",leq},{">",gtr},{">=",geq},
@@ -33,7 +34,11 @@ const map<std::string,TokenType> Lexer::symb=
 Lexer::Lexer(char file[])
 {
 	src=fopen(file,"r");
-	if (!src) exit(-3);//Error
+	if (!src)
+	{
+		error(row,col,open_failed);
+		exit(1);
+	}
 	row=1,col=0;
 	read();
 }
@@ -41,14 +46,10 @@ Lexer::~Lexer()
 {
 	fclose(src);
 }
-Token Lexer::NextToken()
+Token Lexer::nextToken()
 {
 	while (isspace(chr)) read();
-	if (chr==EOF)
-	{
-		exit(-1);
-	}
-	else if (isalpha(chr))
+	if (isalpha(chr))
 	{
 		std::string buff;
 		while (isalnum(chr))
@@ -73,6 +74,7 @@ Token Lexer::NextToken()
 		while (isdigit(chr))
 		{
 			num=num*10+chr-'0';
+			if (num>=SHRT_MAX) warning(row,col,integer_overflow);
 			read();
 		}
 		token.type=number;
@@ -92,7 +94,7 @@ Token Lexer::NextToken()
 			}
 			else
 			{
-				exit(-2);
+				error(row,col,unknown_character);
 			}
 		}
 		else if (chr=='"')
@@ -111,7 +113,7 @@ Token Lexer::NextToken()
 			}
 			else
 			{
-				exit(-2);
+				error(row,col,unknown_character);
 			}
 		}
 		else
@@ -130,13 +132,13 @@ Token Lexer::NextToken()
 			}
 			else
 			{
-				exit(-2);
+				error(row,col,unknown_character);
 			}
 		}
 	}
 	else
 	{
-		exit(-2);
+		error(row,col,unknown_character);
 	}
 	return token;
 }
@@ -146,5 +148,9 @@ void Lexer::read()
 	chr=fgetc(src);
 	if (chr=='\n') ++row,col=0;
 	else ++col;
-	if (chr==EOF) ;//TODO:Error;
+	if (chr==EOF)
+	{
+		error(row,col,unexpected_EOF);
+		exit(1);
+	}
 }

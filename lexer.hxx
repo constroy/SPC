@@ -11,10 +11,10 @@
 #define LEXER_HXX
 
 #include <cstdio>
+#include <climits>
 #include <string>
 #include <map>
-
-using std::map;
+#include "error.hxx"
 
 enum TokenType
 {
@@ -41,10 +41,10 @@ class Lexer
 	public:
 		Lexer(char file[]);
 		~Lexer();
-		Token NextToken();
+		Token nextToken();
 	private:
-		static const map<std::string,TokenType> word;
-		static const map<std::string,TokenType> symb;
+		static const std::map<std::string,TokenType> word;
+		static const std::map<std::string,TokenType> symb;
 		FILE *src;
 		int chr;
 		int row,col;
