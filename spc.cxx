@@ -36,7 +36,7 @@ int main(int argc,char *argv[])
 	freopen(argv[2],"w",stdout);
 	do
 	{
-		token=lexer.NextToken();
+		token=lexer.nextToken();
 		printf("%-12s",type[token.type].c_str());
 		if (token.type==number) printf("%d\n",token.v);
 		else if (token.type==character)	printf("%c\n",token.v);
