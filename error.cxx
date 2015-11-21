@@ -7,13 +7,14 @@
 
 #include "error.hxx"
 
-char error_msg[][64]=
+const char error_msg[][64]=
 {
 	"cannot open the source file",
 	"unexpected end of file",
 	"unknown charactor or symbol"
 };
-char warning_msg[][64]=
+
+const char warning_msg[][64]=
 {
 	"constant integer may overflow",
 };

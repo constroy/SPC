@@ -18,11 +18,13 @@ enum Error
 	unexpected_EOF,
 	unknown_character
 };
-
 enum Warning
 {
 	integer_overflow
 };
+
+extern const char error_msg[][64];
+extern const char warning_msg[][64];
 
 void error(int r,int c,Error e);
 void warning(int r,int c,Warning w);
