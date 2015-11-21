@@ -16,6 +16,8 @@
 #include <map>
 #include "error.hxx"
 
+typedef std::pair<int,int> pos;
+
 enum TokenType
 {
 	ident,
@@ -41,6 +43,7 @@ class Lexer
 	public:
 		Lexer(char file[]);
 		~Lexer();
+		pos getPos();
 		Token nextToken();
 	private:
 		static const std::map<std::string,TokenType> word;
@@ -50,7 +53,6 @@ class Lexer
 		int row,col;
 		Token token;
 		void read();
-
 };
 
 #endif /* LEXER_HXX */

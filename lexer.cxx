@@ -9,7 +9,6 @@
 
 #include "lexer.hxx"
 
-
 const std::map<std::string,TokenType> Lexer::word=
 {
 	{"read",word_read},{"write",word_write},
@@ -22,7 +21,6 @@ const std::map<std::string,TokenType> Lexer::word=
 	{"for",word_for},{"to",word_to},{"downto",word_downto},
 	{"if",word_if},{"then",word_then},{"else",word_else}
 };
-
 const std::map<std::string,TokenType> Lexer::symb=
 {
 	{":=",assign},{"+",plus},{"-",minus},{"*",times},{"/",slash},
@@ -45,6 +43,10 @@ Lexer::Lexer(char file[])
 Lexer::~Lexer()
 {
 	fclose(src);
+}
+pos Lexer::getPos()
+{
+	return std::make_pair(row,col);
 }
 Token Lexer::nextToken()
 {
