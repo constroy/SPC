@@ -9,7 +9,6 @@
 
 #include "parser.hxx"
 
-
 Parser::Parser()
 {
 
