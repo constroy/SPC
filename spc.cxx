@@ -8,7 +8,6 @@
 
 #include <cstdio>
 #include "lexer.hxx"
-#include <set>
 
 int main(int argc,char *argv[])
 {
