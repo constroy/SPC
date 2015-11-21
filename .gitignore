@@ -1,0 +1,4 @@
+spc
+*.o
+*.gch
+*.out
