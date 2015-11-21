@@ -9,46 +9,33 @@
 
 #include "symtab.hxx"
 
-
 SymTab::SymTab()
 {
 	p=0;
 }
 bool SymTab::push()
 {
-	if (p<STACK_SIZE)
-	{
-		s[p]=s[p-1];
-		++p;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	if (p<STACK_SIZE) return p++;
+	else return false;
 }
 bool SymTab::pop()
 {
 	return p?p--:p;
 }
-bool SymTab::insert(const std::string &name,Symbol &symb)
+bool SymTab::insert(const std::string &name,const Symbol &symb)
 {
-	if ((symb.l=p))
+	if (!p) return false;
+	if (s[p-1].count(name)) return false;
+	s[p-1][name]=symb;
+	return true;
+}
+bool SymTab::find(const std::string &name,Symbol &symb) const
+{
+	if (!p) return false;
+	for (int i=p-1;i>=0;--i) if (s[i].count(name))
 	{
-		s[p-1][name]=symb;
+		symb=s[i].at(name);
 		return true;
 	}
-	else
-	{
-		return false;
-	}
-}
-int SymTab::level(const std::string &name) const
-{
-	if (p && s[p-1].count(name)) return s[p-1].at(name).l;
-	else return 0;
-}
-Symbol SymTab::at(const std::string &name) const
-{
-	return s[p-1].at(name);
+	return false;
 }

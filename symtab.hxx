@@ -22,7 +22,7 @@ struct Symbol
 {
 	SymKind kind;
 	SymType type;
-	int l,v;
+	int v;
 };
 
 class SymTab
@@ -31,9 +31,8 @@ class SymTab
 		SymTab();
 		bool push();
 		bool pop();
-		bool insert(const std::string &name,Symbol &symb);
-		int level(const std::string &name) const;
-		Symbol at(const std::string &name) const;
+		bool insert(const std::string &name,const Symbol &symb);
+		bool find(const std::string &name,Symbol &symb) const;
 	private:
 		int p;
 		std::unordered_map<std::string,Symbol> s[STACK_SIZE];
