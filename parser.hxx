@@ -15,110 +15,107 @@
 #include "lexer.hxx"
 
 using std::pair;
+using std::make_pair;
 using std::vector;
 
 struct Program;
-
 struct ConstDef
 {
-	Token *name;
-	Token *value;
+	ConstDef(Lexer &lexer);
+	Token *name,*value;
 };
 struct VarDef
 {
+	VarDef(Lexer &lexer);
 	vector<Token*> names;
+	int size;
 	Token *type;
-	bool array;
-};
-struct ConstDecl
-{
-	vector<ConstDef*> const_defs;
-};
-struct VarDecl
-{
-	vector<VarDef*> var_defs;
-};
-struct FuncDef
-{
-	Token *name;
-	Token *type;
-	vector<pair<bool,VarDef>*> para_list;
-	Program *program;
 };
 struct ProcDef
 {
+	ProcDef(Lexer &lexer);
 	Token *name;
-	vector<pair<bool,VarDef>*> para_list;
-	VarDecl *ref_para_decl;
+	vector<pair<bool,VarDef*>> para_list;
+	Program *program;
+};
+struct FuncDef
+{
+	FuncDef(Lexer &lexer);
+	Token *name,*type;
+	vector<pair<bool,VarDef*>> para_list;
 	Program *program;
 };
 struct Expression;
-
-struct FuncCall
+struct ProcCall
 {
+	ProcCall(const Token &token,Lexer &lexer);
 	Token *name;
 	vector<Expression*> para_list;
 };
-struct ProcCall
-{
-	Token *name;
-	VarDecl *val_para_decl;
-	VarDecl *ref_para_decl;
-};
 struct Factor
 {
+	Factor(Lexer &lexer);
 	Token *token;
 	Expression *exp;
-	FuncCall *func_call;
+	vector<Expression*> para_list;
 };
 struct Term
 {
+	Term(Lexer &lexer);
 	vector<pair<Token*,Factor*>> factors;
 };
 struct Expression
 {
+	Expression(Lexer &lexer);
 	vector<pair<Token*,Term*>> terms;
 };
 struct Condition
 {
-	Token token;
-	Expression exp0,exp1;
+	Condition(Lexer &lexer);
+	Token *token;
+	Expression *exp0,*exp1;
 };
 struct Block;
 struct Assignment
 {
-	Token *token;
-	Expression *exp;
+	Assignment(const Token &token,Expression *exp,Lexer &lexer);
+	Token *dest;
+	Expression *exp0,*exp1;
 };
 struct Statement;
 struct DoWhile
 {
+	DoWhile(Lexer &lexer);
 	Condition *condition;
 	Statement *statement;
 };
 struct ForDo
 {
-	Token token;
+	ForDo(Lexer &lexer);
+	Token token0,token1;
 	Expression *exp0,*exp1;
-	bool down;
 	Statement *statement;
 };
 struct IfThen
 {
+	IfThen(Lexer &lexer);
 	Condition *condition;
 	Statement *statement0,*statement1;
 };
+struct Read
+{
+	Read(Lexer &lexer);
+	vector<Token*> tokens;
+};
 struct Write
 {
+	Write(Lexer &lexer);
 	Token *token;
 	Expression *exp;
 };
-struct Read
-{
-	vector<Token*> tokens;
-};
 struct Statement
 {
+	Statement(Lexer &lexer);
 	Assignment *assignment;
 	ProcCall *proc_call;
 	DoWhile *do_while;
@@ -130,12 +127,14 @@ struct Statement
 };
 struct Block
 {
+	Block(Lexer &lexer);
 	vector<Statement*> statements;
 };
 struct Program
 {
-	ConstDecl *const_decl;
-	VarDecl *var_decl;
+	Program(Lexer &Lexer);
+	vector<ConstDef*> const_defs;
+	vector<VarDef*> var_defs;
 	vector<FuncDef*> func_defs;
 	vector<ProcDef*> proc_defs;
 	Block *block;
@@ -144,9 +143,12 @@ struct Program
 class Parser
 {
 	public:
-		Parser();
-
+		Parser(char file[]);
+		Program *genAST();
 	private:
+		Program *program;
+		Lexer lexer;
+		Token token;
 		/* add your private declarations */
 };
 
