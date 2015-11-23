@@ -13,9 +13,9 @@ const std::map<std::string,TokenType> Lexer::word=
 {
 	{"read",word_read},{"write",word_write},
 	{"const",word_const},{"var",word_var},
-	{"integer",word_int},{"char",word_char},
+	{"integer",word_integer},{"char",word_char},
 	{"array",word_array},{"of",word_of},
-	{"function",word_func},{"procedure",word_proc},
+	{"procedure",word_proc},{"function",word_func},
 	{"begin",word_begin},{"end",word_end},
 	{"do",word_do},{"while",word_while},
 	{"for",word_for},{"to",word_to},{"downto",word_downto},
@@ -34,7 +34,7 @@ Lexer::Lexer(char file[])
 	src=fopen(file,"r");
 	if (!src)
 	{
-		error(row,col,open_failed);
+		error(pos,open_failed);
 		exit(1);
 	}
 	row=1,col=0;
@@ -44,11 +44,15 @@ Lexer::~Lexer()
 {
 	fclose(src);
 }
-pos Lexer::getPos()
+const Pos &Lexer::getPos() const
 {
-	return std::make_pair(row,col);
+	return pos;
 }
-Token Lexer::nextToken()
+const Token &Lexer::currToken() const
+{
+	return token;
+}
+const Token &Lexer::nextToken()
 {
 	while (isspace(chr)) read();
 	if (isalpha(chr))
@@ -76,7 +80,7 @@ Token Lexer::nextToken()
 		while (isdigit(chr))
 		{
 			num=num*10+chr-'0';
-			if (num>=SHRT_MAX) warning(row,col,integer_overflow);
+			if (num>=SHRT_MAX) warning(pos,integer_overflow);
 			read();
 		}
 		token.type=number;
@@ -96,7 +100,7 @@ Token Lexer::nextToken()
 			}
 			else
 			{
-				error(row,col,unknown_character);
+				error(pos,unknown_character);
 			}
 		}
 		else if (chr=='"')
@@ -115,7 +119,7 @@ Token Lexer::nextToken()
 			}
 			else
 			{
-				error(row,col,unknown_character);
+				error(pos,unknown_character);
 			}
 		}
 		else
@@ -134,17 +138,16 @@ Token Lexer::nextToken()
 			}
 			else
 			{
-				error(row,col,unknown_character);
+				error(pos,unknown_character);
 			}
 		}
 	}
 	else
 	{
-		error(row,col,unknown_character);
+		error(pos,unknown_character);
 	}
 	return token;
 }
-
 void Lexer::read()
 {
 	chr=fgetc(src);
@@ -152,7 +155,7 @@ void Lexer::read()
 	else ++col;
 	if (chr==EOF)
 	{
-		error(row,col,unexpected_EOF);
+		error(pos,unexpected_EOF);
 		exit(1);
 	}
 }
