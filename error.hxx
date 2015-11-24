@@ -12,8 +12,7 @@
 
 #include <cstdio>
 #include <utility>
-
-typedef std::pair<int,int> Pos;
+#include "lexer.hxx"
 
 enum Error
 {
@@ -50,7 +49,7 @@ enum Error
 
 extern const char msg[][64];
 
-void error(Pos pos,Error e);
-void warning(Pos pos,Error w);
+void error(const Lexer &lexer,Error e);
+void warning(const Lexer &lexer,Error w);
 
 #endif /* ERROR_HXX */

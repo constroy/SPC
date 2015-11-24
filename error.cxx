@@ -40,11 +40,15 @@ const char msg[][64]=
 
 };
 
-void error(Pos pos,Error e)
+void error(const Lexer &lexer,Error e)
 {
-	fprintf(stderr,"r%dc%d: error: %s",pos.first,pos.second,msg[e]);
+	auto pos=lexer.getPos();
+	fprintf(stderr,"r%dc%d: '%s': error: %s\n",
+			pos.first,pos.second,lexer.currToken().s.c_str(),msg[e]);
 }
-void warning(Pos pos,Error w)
+void warning(const Lexer &lexer,Error w)
 {
-	fprintf(stderr,"r%dc%d: warning: %s",pos.first,pos.second,msg[w]);
+	auto pos=lexer.getPos();
+	fprintf(stderr,"r%dc%d: '%s': warning: %s\n",
+			pos.first,pos.second,lexer.currToken().s.c_str(),msg[w]);
 }
