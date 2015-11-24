@@ -19,8 +19,8 @@ int main(int argc,char *argv[])
 	//unit test [Paser]------------------------------------------------
 	//freopen(argv[2],"w",stdout);
 	Parser parser(argv[1]);
-	Program *prog=parser.genAST();
-	delete prog;
+	const Program *prog=parser.genAST();
+	parser.delAST();
 	//-----------------------------------------------------------------
 	return 0;
 }
