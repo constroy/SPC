@@ -48,7 +48,7 @@ class Lexer
 	private:
 		static const std::map<std::string,TokenType> word;
 		static const std::map<std::string,TokenType> symb;
-		FILE *src;
+		FILE *const src;
 		int chr;
 		Pos pos;
 		int row,col;

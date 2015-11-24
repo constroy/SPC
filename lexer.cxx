@@ -30,9 +30,8 @@ const std::map<std::string,TokenType> Lexer::symb=
 	{":",colon},{",",comma},{";",semicolon},{".",period}
 };
 
-Lexer::Lexer(char file[])
+Lexer::Lexer(char file[]): src(fopen(file,"r"))
 {
-	src=fopen(file,"r");
 	if (!src)
 	{
 		error(*this,open_failed);
