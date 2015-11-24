@@ -26,7 +26,7 @@ struct ConstDef
 };
 struct VarDef
 {
-	VarDef(Lexer &lexer);
+	VarDef(Lexer &lexer,bool f=true);
 	vector<Token*> names;
 	int size;
 	Token *type;
@@ -48,7 +48,7 @@ struct FuncDef
 struct Expression;
 struct ProcCall
 {
-	ProcCall(const Token &token,Lexer &lexer);
+	ProcCall(Token token,Lexer &lexer);
 	Token *name;
 	vector<Expression*> para_list;
 };
@@ -78,7 +78,7 @@ struct Condition
 struct Block;
 struct Assignment
 {
-	Assignment(const Token &token,Expression *exp,Lexer &lexer);
+	Assignment(Token token,Expression *exp,Lexer &lexer);
 	Token *dest;
 	Expression *exp0,*exp1;
 };
