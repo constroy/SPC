@@ -98,7 +98,7 @@ VarDef::VarDef(Lexer &lexer,bool f): size(-1),type(0)
 	puts("VarDef");
 	//test
 }
-ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken()))
+ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken())),program(0)
 {
 	if (lexer.nextToken().type==lparen)
 	{
@@ -124,7 +124,8 @@ ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken()))
 	puts("ProcDef");
 	//test
 }
-FuncDef::FuncDef(Lexer &lexer): name(new Token(lexer.currToken()))
+FuncDef::FuncDef(Lexer &lexer): name(new Token(lexer.currToken())),
+		type(0),program(0)
 {
 	if (lexer.nextToken().type==lparen)
 	{
@@ -269,7 +270,7 @@ Assignment::Assignment(Token token,Expression *exp,Lexer &lexer):
 	puts("Assignment");
 	//test
 }
-DoWhile::DoWhile(Lexer &lexer)
+DoWhile::DoWhile(Lexer &lexer): condition(0),statement(0)
 {
 	statement=new Statement(lexer);
 	if (lexer.currToken().type==word_while)
@@ -285,9 +286,9 @@ DoWhile::DoWhile(Lexer &lexer)
 	puts("DoWhile");
 	//test
 }
-ForDo::ForDo(Lexer &lexer)
+ForDo::ForDo(Lexer &lexer): token0(0),token1(0),exp0(0),exp1(0),statement(0)
 {
-	token0=lexer.currToken();
+	token0=new Token(lexer.currToken());
 	if (lexer.nextToken().type==assign)
 	{
 		lexer.nextToken();
@@ -295,6 +296,7 @@ ForDo::ForDo(Lexer &lexer)
 		if (lexer.currToken().type==word_to ||
 			lexer.currToken().type==word_downto)
 		{
+			token1=new Token(lexer.currToken());
 			lexer.nextToken();
 			exp1=new Expression(lexer);
 			if (lexer.currToken().type==word_do)
@@ -320,7 +322,7 @@ ForDo::ForDo(Lexer &lexer)
 	puts("ForDo");
 	//test
 }
-IfThen::IfThen(Lexer &lexer)
+IfThen::IfThen(Lexer &lexer): condition(0),statement0(0),statement1(0)
 {
 	condition=new Condition(lexer);
 	if (lexer.currToken().type==word_then)
@@ -531,11 +533,121 @@ Program::Program(Lexer &lexer): block(0)
 	puts("Sub-program");
 	//test
 }
+ConstDef::~ConstDef()
+{
+	delete name;
+	delete value;
+}
+VarDef::~VarDef()
+{
+	for (auto &i:names) delete i;
+	delete type;
+}
+ProcDef::~ProcDef()
+{
+	delete name;
+	for (auto &i:para_list) delete i.second;
+	delete program;
+}
+FuncDef::~FuncDef()
+{
+	delete name;
+	delete type;
+	for (auto &i:para_list) delete i.second;
+	delete program;
+}
+ProcCall::~ProcCall()
+{
+	delete name;
+	for (auto &i:para_list) delete i;
+}
+Factor::~Factor()
+{
+	delete token;
+	delete exp;
+	for (auto &i:para_list) delete i;
+}
+Term::~Term()
+{
+	for (auto &i:factors) delete i.first,delete i.second;
+}
+Expression::~Expression()
+{
+	for (auto &i:terms) delete i.first,delete i.second;
+}
+Condition::~Condition()
+{
+	delete token;
+	delete exp0;
+	delete exp1;
+}
+Assignment::~Assignment()
+{
+	delete dest;
+	delete exp0,
+	delete exp1;
+}
+DoWhile::~DoWhile()
+{
+	delete condition;
+	delete statement;
+}
+ForDo::~ForDo()
+{
+	delete token0;
+	delete token1;
+	delete exp0;
+	delete exp1;
+	delete statement;
+}
+IfThen::~IfThen()
+{
+	delete condition;
+	delete statement0;
+	delete statement1;
+}
+Read::~Read()
+{
+	for (auto &i:tokens) delete i;
+}
+Write::~Write()
+{
+	delete token;
+	delete exp;
+}
+Statement::~Statement()
+{
+	delete assignment;
+	delete proc_call;
+	delete do_while;
+	delete for_do;
+	delete if_then;
+	delete read;
+	delete write;
+	delete block;
+}
+Block::~Block()
+{
+	for (auto &i:statements) delete i;
+}
+Program::~Program()
+{
+	for (auto &i:const_defs) delete i;
+	for (auto &i:var_defs) delete i;
+	for (auto &i:proc_defs) delete i;
+	for (auto &i:func_defs) delete i;
+	delete block;
+}
+/*--------------------Parser----------------------*/
 Parser::Parser(char file[]): program(0),lexer(file)
 {
 	lexer.nextToken();
 }
-Program *Parser::genAST()
+Parser::~Parser()
+{
+	delAST();
+}
+const Program *Parser::genAST()
 {
 	program=new Program(lexer);
 	if (lexer.currToken().type!=period)
@@ -544,4 +656,9 @@ Program *Parser::genAST()
 	puts("Program");
 	//test
 	return program;
+}
+void Parser::delAST()
+{
+	delete program;
+	program=0;
 }
