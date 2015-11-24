@@ -14,7 +14,6 @@
 #include <climits>
 #include <string>
 #include <map>
-#include "error.hxx"
 
 typedef std::pair<int,int> Pos;
 
@@ -52,7 +51,7 @@ class Lexer
 		FILE *src;
 		int chr;
 		Pos pos;
-		int &row=pos.first,&col=pos.second;
+		int row,col;
 		Token token;
 		void read();
 };

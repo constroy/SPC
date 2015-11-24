@@ -8,6 +8,7 @@
 
 
 #include "lexer.hxx"
+#include "error.hxx"
 
 const std::map<std::string,TokenType> Lexer::word=
 {
@@ -34,7 +35,7 @@ Lexer::Lexer(char file[])
 	src=fopen(file,"r");
 	if (!src)
 	{
-		error(pos,open_failed);
+		error(*this,open_failed);
 		exit(1);
 	}
 	row=1,col=0;
@@ -80,11 +81,12 @@ const Token &Lexer::nextToken()
 		while (isdigit(chr))
 		{
 			num=num*10+chr-'0';
-			if (num>=SHRT_MAX) warning(pos,integer_overflow);
+			if (num>=SHRT_MAX) warning(*this,integer_overflow);
 			read();
 		}
 		token.type=number;
 		token.v=num;
+		token.s="number";
 	}
 	else if (ispunct(chr))
 	{
@@ -100,7 +102,7 @@ const Token &Lexer::nextToken()
 			}
 			else
 			{
-				error(pos,unknown_character);
+				error(*this,unknown_character);
 			}
 		}
 		else if (chr=='"')
@@ -119,7 +121,7 @@ const Token &Lexer::nextToken()
 			}
 			else
 			{
-				error(pos,unknown_character);
+				error(*this,unknown_character);
 			}
 		}
 		else
@@ -131,6 +133,7 @@ const Token &Lexer::nextToken()
 				buff+=chr;
 				read();
 			}
+			//printf("symb: %s\n",buff.c_str());
 			if (symb.count(buff))
 			{
 				token.type=symb.at(buff);
@@ -138,24 +141,26 @@ const Token &Lexer::nextToken()
 			}
 			else
 			{
-				error(pos,unknown_character);
+				error(*this,unknown_character);
 			}
 		}
 	}
 	else
 	{
-		error(pos,unknown_character);
+		error(*this,unknown_character);
 	}
+
 	return token;
 }
 void Lexer::read()
 {
 	chr=fgetc(src);
-	if (chr=='\n') ++row,col=0;
+	pos=std::make_pair(row,col);
+	if (chr=='\n') ++row,col=1;
 	else ++col;
 	if (chr==EOF)
 	{
-		error(pos,unexpected_EOF);
+		error(*this,unexpected_EOF);
 		exit(1);
 	}
 }
