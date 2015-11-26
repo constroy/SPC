@@ -45,7 +45,7 @@ ConstDef::ConstDef(Lexer &lexer): name(0),value(0)
 		error(lexer,lost_ident);
 	}
 	//test
-	puts("ConstDef");
+	//puts("ConstDef");
 	//test
 }
 VarDef::VarDef(Lexer &lexer,bool f): size(-1),type(0)
@@ -53,7 +53,6 @@ VarDef::VarDef(Lexer &lexer,bool f): size(-1),type(0)
 	names.push_back(new Token(lexer.currToken()));
 	while (lexer.nextToken().type==comma)
 		names.push_back(new Token(lexer.nextToken()));
-	//puts(lexer.currToken().s.c_str());
 	if (lexer.currToken().type==colon)
 	{
 		if (lexer.nextToken().type==word_array)
@@ -95,7 +94,7 @@ VarDef::VarDef(Lexer &lexer,bool f): size(-1),type(0)
 		error(lexer,lost_colon);
 	}
 	//test
-	puts("VarDef");
+	//puts("VarDef");
 	//test
 }
 ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken())),program(0)
@@ -121,7 +120,7 @@ ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken())),program(0)
 	if (lexer.currToken().type==semicolon) lexer.nextToken();
 	else warning(lexer,lost_semicolon);
 	//test
-	puts("ProcDef");
+	//puts("ProcDef");
 	//test
 }
 FuncDef::FuncDef(Lexer &lexer): name(new Token(lexer.currToken())),
@@ -153,24 +152,24 @@ FuncDef::FuncDef(Lexer &lexer): name(new Token(lexer.currToken())),
 	if (lexer.currToken().type==semicolon) lexer.nextToken();
 	else warning(lexer,lost_semicolon);
 	//test
-	puts("FuncDef");
+	//puts("FuncDef");
 	//test
 }
 ProcCall::ProcCall(Token token,Lexer &lexer): name(new Token(token))
 {
 	if (lexer.currToken().type==lparen && lexer.nextToken().type!=rparen)
 	{
-		para_list.push_back(new Expression(lexer));
+		arg_list.push_back(new Expression(lexer));
 		while (lexer.currToken().type==comma)
 		{
 			lexer.nextToken();
-			para_list.push_back(new Expression(lexer));
+			arg_list.push_back(new Expression(lexer));
 		}
 		if (lexer.currToken().type==rparen) lexer.nextToken();
 		else warning(lexer,lost_rparen);
 	}
 	//test
-	puts("ProcCall");
+	//puts("ProcCall");
 	//test
 }
 Factor::Factor(Lexer &lexer): token(0),exp(0)
@@ -193,18 +192,18 @@ Factor::Factor(Lexer &lexer): token(0),exp(0)
 		}
 		else if (lexer.currToken().type==lparen)
 		{
-			para_list.push_back(new Expression(lexer));
+			arg_list.push_back(new Expression(lexer));
 			while (lexer.currToken().type==comma)
 			{
 				lexer.nextToken();
-				para_list.push_back(new Expression(lexer));
+				arg_list.push_back(new Expression(lexer));
 			}
 			if (lexer.currToken().type==rparen) lexer.nextToken();
 			else warning(lexer,lost_rparen);
 		}
 	}
 	//test
-	puts("Factor");
+	//puts("Factor");
 	//test
 }
 Term::Term(Lexer &lexer)
@@ -218,7 +217,7 @@ Term::Term(Lexer &lexer)
 		factors.push_back(make_pair(token,new Factor(lexer)));
 	}
 	//test
-	puts("Term");
+	//puts("Term");
 	//test
 }
 Expression::Expression(Lexer &lexer)
@@ -241,7 +240,7 @@ Expression::Expression(Lexer &lexer)
 		terms.push_back(make_pair(token,new Term(lexer)));
 	}
 	//test
-	puts("Expression");
+	//puts("Expression");
 	//test
 }
 Condition::Condition(Lexer &lexer): token(0),exp0(0),exp1(0)
@@ -259,7 +258,7 @@ Condition::Condition(Lexer &lexer): token(0),exp0(0),exp1(0)
 		error(lexer,lost_relational);
 	}
 	//test
-	puts("Condition");
+	//puts("Condition");
 	//test
 }
 Assignment::Assignment(Token token,Expression *exp,Lexer &lexer):
@@ -267,7 +266,7 @@ Assignment::Assignment(Token token,Expression *exp,Lexer &lexer):
 {
 
 	//test
-	puts("Assignment");
+	//puts("Assignment");
 	//test
 }
 DoWhile::DoWhile(Lexer &lexer): condition(0),statement(0)
@@ -283,7 +282,7 @@ DoWhile::DoWhile(Lexer &lexer): condition(0),statement(0)
 		error(lexer,lost_while);
 	}
 	//test
-	puts("DoWhile");
+	//uts("DoWhile");
 	//test
 }
 ForDo::ForDo(Lexer &lexer): token0(0),token1(0),exp0(0),exp1(0),statement(0)
@@ -319,7 +318,7 @@ ForDo::ForDo(Lexer &lexer): token0(0),token1(0),exp0(0),exp1(0),statement(0)
 		error(lexer,lost_assign);
 	}
 	//test
-	puts("ForDo");
+	//puts("ForDo");
 	//test
 }
 IfThen::IfThen(Lexer &lexer): condition(0),statement0(0),statement1(0)
@@ -340,7 +339,7 @@ IfThen::IfThen(Lexer &lexer): condition(0),statement0(0),statement1(0)
 		error(lexer,lost_then);
 	}
 	//test
-	puts("IfThen");
+	//puts("IfThen");
 	//test
 }
 Read::Read(Lexer &lexer)
@@ -360,7 +359,7 @@ Read::Read(Lexer &lexer)
 		error(lexer,lost_lparen);
 	}
 	//test
-	puts("Read");
+	//puts("Read");
 	//test
 }
 Write::Write(Lexer &lexer): token(0),exp(0)
@@ -388,7 +387,7 @@ Write::Write(Lexer &lexer): token(0),exp(0)
 		error(lexer,lost_lparen);
 	}
 	//test
-	puts("Write");
+	//puts("Write");
 	//test
 }
 Statement::Statement(Lexer &lexer): assignment(0),proc_call(0),
@@ -461,7 +460,7 @@ Statement::Statement(Lexer &lexer): assignment(0),proc_call(0),
 		default:break;
 	}
 	//test
-	puts("Statement");
+	//puts("Statement");
 	//test
 }
 Block::Block(Lexer &lexer)
@@ -478,7 +477,7 @@ Block::Block(Lexer &lexer)
 		else error(lexer,lost_end);
 	}
 	//test
-	puts("Block");
+	//puts("Block");
 	//test
 }
 Program::Program(Lexer &lexer): block(0)
@@ -530,7 +529,7 @@ Program::Program(Lexer &lexer): block(0)
 		error(lexer,lost_begin);
 	}
 	//test
-	puts("Sub-program");
+	//puts("Sub-program");
 	//test
 }
 ConstDef::~ConstDef()
@@ -559,13 +558,13 @@ FuncDef::~FuncDef()
 ProcCall::~ProcCall()
 {
 	delete name;
-	for (auto &i:para_list) delete i;
+	for (auto &i:arg_list) delete i;
 }
 Factor::~Factor()
 {
 	delete token;
 	delete exp;
-	for (auto &i:para_list) delete i;
+	for (auto &i:arg_list) delete i;
 }
 Term::~Term()
 {
@@ -653,7 +652,7 @@ const Program *Parser::genAST()
 	if (lexer.currToken().type!=period)
 		warning(lexer,lost_period);
 	//test
-	puts("Program");
+	//puts("Program");
 	//test
 	return program;
 }

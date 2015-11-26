@@ -55,7 +55,7 @@ struct ProcCall
 	ProcCall(Token token,Lexer &lexer);
 	~ProcCall();
 	Token *name;
-	vector<Expression*> para_list;
+	vector<Expression*> arg_list;
 };
 struct Factor
 {
@@ -63,7 +63,7 @@ struct Factor
 	~Factor();
 	Token *token;
 	Expression *exp;
-	vector<Expression*> para_list;
+	vector<Expression*> arg_list;
 };
 struct Term
 {
