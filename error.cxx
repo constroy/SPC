@@ -40,8 +40,11 @@ const char msg[][64]=
 
 };
 
+bool success=true;
+
 void error(const Lexer &lexer,Error e)
 {
+	success=false;
 	auto pos=lexer.getPos();
 	fprintf(stderr,"r%dc%d: '%s': error: %s\n",
 			pos.first,pos.second,lexer.currToken().s.c_str(),msg[e]);

@@ -34,7 +34,6 @@ enum Error
 	lost_do,
 	lost_then,
 	lost_end,
-
 	lost_period,
 	lost_colon,
 	lost_semicolon,
@@ -48,6 +47,7 @@ enum Error
 };
 
 extern const char msg[][64];
+extern bool success;
 
 void error(const Lexer &lexer,Error e);
 void warning(const Lexer &lexer,Error w);
