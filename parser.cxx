@@ -10,7 +10,7 @@
 #include "parser.hxx"
 #include "error.hxx"
 
-ConstDef::ConstDef(Lexer &lexer): name(0),value(0)
+ConstDef::ConstDef(Lexer &lexer): name(nullptr),value(nullptr)
 {
 	if (lexer.currToken().type==ident)
 	{
@@ -48,7 +48,7 @@ ConstDef::ConstDef(Lexer &lexer): name(0),value(0)
 	//puts("ConstDef");
 	//test
 }
-VarDef::VarDef(Lexer &lexer,bool f): size(-1),type(0)
+VarDef::VarDef(Lexer &lexer,bool f): size(-1),type(nullptr)
 {
 	names.push_back(new Token(lexer.currToken()));
 	while (lexer.nextToken().type==comma)
@@ -97,7 +97,7 @@ VarDef::VarDef(Lexer &lexer,bool f): size(-1),type(0)
 	//puts("VarDef");
 	//test
 }
-ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken())),program(0)
+ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken())),program(nullptr)
 {
 	if (lexer.nextToken().type==lparen)
 	{
@@ -124,7 +124,7 @@ ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken())),program(0)
 	//test
 }
 FuncDef::FuncDef(Lexer &lexer): name(new Token(lexer.currToken())),
-		type(0),program(0)
+		type(nullptr),program(nullptr)
 {
 	if (lexer.nextToken().type==lparen)
 	{
@@ -172,7 +172,7 @@ ProcCall::ProcCall(Token token,Lexer &lexer): name(new Token(token))
 	//puts("ProcCall");
 	//test
 }
-Factor::Factor(Lexer &lexer): token(0),exp(0)
+Factor::Factor(Lexer &lexer): token(nullptr),exp(nullptr)
 {
 	if (lexer.currToken().type==lparen)
 	{
@@ -208,7 +208,7 @@ Factor::Factor(Lexer &lexer): token(0),exp(0)
 }
 Term::Term(Lexer &lexer)
 {
-	Token *token=0;
+	Token *token=nullptr;
 	factors.push_back(make_pair(token,new Factor(lexer)));
 	while (lexer.currToken().type==times || lexer.currToken().type==slash)
 	{
@@ -243,7 +243,7 @@ Expression::Expression(Lexer &lexer)
 	//puts("Expression");
 	//test
 }
-Condition::Condition(Lexer &lexer): token(0),exp0(0),exp1(0)
+Condition::Condition(Lexer &lexer): token(nullptr),exp0(nullptr),exp1(nullptr)
 {
 	exp0=new Expression(lexer);
 	const Token temp=lexer.currToken();
@@ -269,7 +269,7 @@ Assignment::Assignment(Token token,Expression *exp,Lexer &lexer):
 	//puts("Assignment");
 	//test
 }
-DoWhile::DoWhile(Lexer &lexer): condition(0),statement(0)
+DoWhile::DoWhile(Lexer &lexer): condition(nullptr),statement(nullptr)
 {
 	statement=new Statement(lexer);
 	if (lexer.currToken().type==word_while)
@@ -285,7 +285,7 @@ DoWhile::DoWhile(Lexer &lexer): condition(0),statement(0)
 	//uts("DoWhile");
 	//test
 }
-ForDo::ForDo(Lexer &lexer): token0(0),token1(0),exp0(0),exp1(0),statement(0)
+ForDo::ForDo(Lexer &lexer): token0(nullptr),token1(nullptr),exp0(nullptr),exp1(nullptr),statement(nullptr)
 {
 	token0=new Token(lexer.currToken());
 	if (lexer.nextToken().type==assign)
@@ -321,7 +321,7 @@ ForDo::ForDo(Lexer &lexer): token0(0),token1(0),exp0(0),exp1(0),statement(0)
 	//puts("ForDo");
 	//test
 }
-IfThen::IfThen(Lexer &lexer): condition(0),statement0(0),statement1(0)
+IfThen::IfThen(Lexer &lexer): condition(nullptr),statement0(nullptr),statement1(nullptr)
 {
 	condition=new Condition(lexer);
 	if (lexer.currToken().type==word_then)
@@ -362,7 +362,7 @@ Read::Read(Lexer &lexer)
 	//puts("Read");
 	//test
 }
-Write::Write(Lexer &lexer): token(0),exp(0)
+Write::Write(Lexer &lexer): token(nullptr),exp(nullptr)
 {
 	if (lexer.currToken().type==lparen)
 	{
@@ -390,8 +390,8 @@ Write::Write(Lexer &lexer): token(0),exp(0)
 	//puts("Write");
 	//test
 }
-Statement::Statement(Lexer &lexer): assignment(0),proc_call(0),
-		do_while(0),for_do(0),if_then(0),read(0),write(0),block(0)
+Statement::Statement(Lexer &lexer): assignment(nullptr),proc_call(nullptr),
+		do_while(nullptr),for_do(nullptr),if_then(nullptr),read(nullptr),write(nullptr),block(nullptr)
 {
 	const Token token=lexer.currToken();
 	switch (token.type)
@@ -413,7 +413,7 @@ Statement::Statement(Lexer &lexer): assignment(0),proc_call(0),
 			else if (lexer.currToken().type==assign)
 			{
 				lexer.nextToken();
-				assignment=new Assignment(token,0,lexer);
+				assignment=new Assignment(token,nullptr,lexer);
 			}
 			else
 			{
@@ -480,7 +480,7 @@ Block::Block(Lexer &lexer)
 	//puts("Block");
 	//test
 }
-Program::Program(Lexer &lexer): block(0)
+Program::Program(Lexer &lexer): block(nullptr)
 {
 	if (lexer.currToken().type==word_const)
 	{
@@ -638,7 +638,7 @@ Program::~Program()
 	delete block;
 }
 /*--------------------Parser----------------------*/
-Parser::Parser(char file[]): program(0),lexer(file)
+Parser::Parser(char file[]): program(nullptr),lexer(file)
 {
 	lexer.nextToken();
 }
@@ -659,5 +659,5 @@ const Program *Parser::genAST()
 void Parser::delAST()
 {
 	delete program;
-	program=0;
+	program=nullptr;
 }
