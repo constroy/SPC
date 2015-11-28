@@ -43,10 +43,15 @@ ConstDef::ConstDef(Lexer &lexer): name(nullptr),value(nullptr)
 	{
 		error(lexer,lost_ident);
 	}
-	//test
-	//puts("ConstDef");
-	//test
 }
+
+ConstDef::~ConstDef()
+{
+	delete name;
+	delete value;
+}
+
+
 VarDef::VarDef(Lexer &lexer,bool f): size(-1),type(nullptr)
 {
 	names.push_back(new Token(lexer.currToken()));
@@ -92,10 +97,14 @@ VarDef::VarDef(Lexer &lexer,bool f): size(-1),type(nullptr)
 	{
 		error(lexer,lost_colon);
 	}
-	//test
-	//puts("VarDef");
-	//test
 }
+
+VarDef::~VarDef()
+{
+	for (auto &i:names) delete i;
+	delete type;
+}
+
 ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken())),program(nullptr)
 {
 	if (lexer.nextToken().type==lparen)
@@ -118,10 +127,15 @@ ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken())),program(nullp
 	program=new Program(lexer);
 	if (lexer.currToken().type==semicolon) lexer.nextToken();
 	else warning(lexer,lost_semicolon);
-	//test
-	//puts("ProcDef");
-	//test
 }
+
+ProcDef::~ProcDef()
+{
+	delete name;
+	for (auto &i:para_list) delete i.second;
+	delete program;
+}
+
 FuncDef::FuncDef(Lexer &lexer): name(new Token(lexer.currToken())),
 		type(nullptr),program(nullptr)
 {
@@ -150,10 +164,16 @@ FuncDef::FuncDef(Lexer &lexer): name(new Token(lexer.currToken())),
 	program=new Program(lexer);
 	if (lexer.currToken().type==semicolon) lexer.nextToken();
 	else warning(lexer,lost_semicolon);
-	//test
-	//puts("FuncDef");
-	//test
 }
+
+FuncDef::~FuncDef()
+{
+	delete name;
+	delete type;
+	for (auto &i:para_list) delete i.second;
+	delete program;
+}
+
 ProcCall::ProcCall(Token token,Lexer &lexer): name(new Token(token))
 {
 	if (lexer.currToken().type==lparen && lexer.nextToken().type!=rparen)
@@ -167,10 +187,14 @@ ProcCall::ProcCall(Token token,Lexer &lexer): name(new Token(token))
 		if (lexer.currToken().type==rparen) lexer.nextToken();
 		else warning(lexer,lost_rparen);
 	}
-	//test
-	//puts("ProcCall");
-	//test
 }
+
+ProcCall::~ProcCall()
+{
+	delete name;
+	for (auto &i:arg_list) delete i;
+}
+
 Factor::Factor(Lexer &lexer): token(nullptr),exp(nullptr)
 {
 	if (lexer.currToken().type==lparen)
@@ -201,10 +225,15 @@ Factor::Factor(Lexer &lexer): token(nullptr),exp(nullptr)
 			else warning(lexer,lost_rparen);
 		}
 	}
-	//test
-	//puts("Factor");
-	//test
 }
+
+Factor::~Factor()
+{
+	delete token;
+	delete exp;
+	for (auto &i:arg_list) delete i;
+}
+
 Term::Term(Lexer &lexer)
 {
 	Token *token=nullptr;
@@ -215,10 +244,13 @@ Term::Term(Lexer &lexer)
 		lexer.nextToken();
 		factors.push_back(make_pair(token,new Factor(lexer)));
 	}
-	//test
-	//puts("Term");
-	//test
 }
+
+Term::~Term()
+{
+	for (auto &i:factors) delete i.first,delete i.second;
+}
+
 Expression::Expression(Lexer &lexer)
 {
 	Token *token=new Token(lexer.currToken());
@@ -238,10 +270,13 @@ Expression::Expression(Lexer &lexer)
 		lexer.nextToken();
 		terms.push_back(make_pair(token,new Term(lexer)));
 	}
-	//test
-	//puts("Expression");
-	//test
 }
+
+Expression::~Expression()
+{
+	for (auto &i:terms) delete i.first,delete i.second;
+}
+
 Condition::Condition(Lexer &lexer): token(nullptr),exp0(nullptr),exp1(nullptr)
 {
 	exp0=new Expression(lexer);
@@ -256,18 +291,28 @@ Condition::Condition(Lexer &lexer): token(nullptr),exp0(nullptr),exp1(nullptr)
 	{
 		error(lexer,lost_relational);
 	}
-	//test
-	//puts("Condition");
-	//test
 }
+
+Condition::~Condition()
+{
+	delete token;
+	delete exp0;
+	delete exp1;
+}
+
 Assignment::Assignment(Token token,Expression *exp,Lexer &lexer):
 		dest(new Token(token)),exp0(exp),exp1(new Expression(lexer))
 {
 
-	//test
-	//puts("Assignment");
-	//test
 }
+
+Assignment::~Assignment()
+{
+	delete dest;
+	delete exp0,
+	delete exp1;
+}
+
 DoWhile::DoWhile(Lexer &lexer): condition(nullptr),statement(nullptr)
 {
 	statement=new Statement(lexer);
@@ -280,10 +325,14 @@ DoWhile::DoWhile(Lexer &lexer): condition(nullptr),statement(nullptr)
 	{
 		error(lexer,lost_while);
 	}
-	//test
-	//uts("DoWhile");
-	//test
 }
+
+DoWhile::~DoWhile()
+{
+	delete condition;
+	delete statement;
+}
+
 ForDo::ForDo(Lexer &lexer): token0(nullptr),token1(nullptr),exp0(nullptr),exp1(nullptr),statement(nullptr)
 {
 	token0=new Token(lexer.currToken());
@@ -316,10 +365,17 @@ ForDo::ForDo(Lexer &lexer): token0(nullptr),token1(nullptr),exp0(nullptr),exp1(n
 	{
 		error(lexer,lost_assign);
 	}
-	//test
-	//puts("ForDo");
-	//test
 }
+
+ForDo::~ForDo()
+{
+	delete token0;
+	delete token1;
+	delete exp0;
+	delete exp1;
+	delete statement;
+}
+
 IfThen::IfThen(Lexer &lexer): condition(nullptr),statement0(nullptr),statement1(nullptr)
 {
 	condition=new Condition(lexer);
@@ -337,10 +393,15 @@ IfThen::IfThen(Lexer &lexer): condition(nullptr),statement0(nullptr),statement1(
 	{
 		error(lexer,lost_then);
 	}
-	//test
-	//puts("IfThen");
-	//test
 }
+
+IfThen::~IfThen()
+{
+	delete condition;
+	delete statement0;
+	delete statement1;
+}
+
 Read::Read(Lexer &lexer)
 {
 	if (lexer.currToken().type==lparen)
@@ -357,10 +418,13 @@ Read::Read(Lexer &lexer)
 	{
 		error(lexer,lost_lparen);
 	}
-	//test
-	//puts("Read");
-	//test
 }
+
+Read::~Read()
+{
+	for (auto &i:tokens) delete i;
+}
+
 Write::Write(Lexer &lexer): token(nullptr),exp(nullptr)
 {
 	if (lexer.currToken().type==lparen)
@@ -385,10 +449,14 @@ Write::Write(Lexer &lexer): token(nullptr),exp(nullptr)
 	{
 		error(lexer,lost_lparen);
 	}
-	//test
-	//puts("Write");
-	//test
 }
+
+Write::~Write()
+{
+	delete token;
+	delete exp;
+}
+
 Statement::Statement(Lexer &lexer): assignment(nullptr),proc_call(nullptr),
 		do_while(nullptr),for_do(nullptr),if_then(nullptr),read(nullptr),write(nullptr),block(nullptr)
 {
@@ -458,10 +526,20 @@ Statement::Statement(Lexer &lexer): assignment(nullptr),proc_call(nullptr),
 		}
 		default:break;
 	}
-	//test
-	//puts("Statement");
-	//test
 }
+
+Statement::~Statement()
+{
+	delete assignment;
+	delete proc_call;
+	delete do_while;
+	delete for_do;
+	delete if_then;
+	delete read;
+	delete write;
+	delete block;
+}
+
 Block::Block(Lexer &lexer)
 {
 	if (lexer.currToken().type!=word_end)
@@ -475,10 +553,13 @@ Block::Block(Lexer &lexer)
 		if (lexer.currToken().type==word_end) lexer.nextToken();
 		else error(lexer,lost_end);
 	}
-	//test
-	//puts("Block");
-	//test
 }
+
+Block::~Block()
+{
+	for (auto &i:statements) delete i;
+}
+
 Program::Program(Lexer &lexer): block(nullptr)
 {
 	if (lexer.currToken().type==word_const)
@@ -527,107 +608,8 @@ Program::Program(Lexer &lexer): block(nullptr)
 	{
 		error(lexer,lost_begin);
 	}
-	//test
-	//puts("Sub-program");
-	//test
 }
-ConstDef::~ConstDef()
-{
-	delete name;
-	delete value;
-}
-VarDef::~VarDef()
-{
-	for (auto &i:names) delete i;
-	delete type;
-}
-ProcDef::~ProcDef()
-{
-	delete name;
-	for (auto &i:para_list) delete i.second;
-	delete program;
-}
-FuncDef::~FuncDef()
-{
-	delete name;
-	delete type;
-	for (auto &i:para_list) delete i.second;
-	delete program;
-}
-ProcCall::~ProcCall()
-{
-	delete name;
-	for (auto &i:arg_list) delete i;
-}
-Factor::~Factor()
-{
-	delete token;
-	delete exp;
-	for (auto &i:arg_list) delete i;
-}
-Term::~Term()
-{
-	for (auto &i:factors) delete i.first,delete i.second;
-}
-Expression::~Expression()
-{
-	for (auto &i:terms) delete i.first,delete i.second;
-}
-Condition::~Condition()
-{
-	delete token;
-	delete exp0;
-	delete exp1;
-}
-Assignment::~Assignment()
-{
-	delete dest;
-	delete exp0,
-	delete exp1;
-}
-DoWhile::~DoWhile()
-{
-	delete condition;
-	delete statement;
-}
-ForDo::~ForDo()
-{
-	delete token0;
-	delete token1;
-	delete exp0;
-	delete exp1;
-	delete statement;
-}
-IfThen::~IfThen()
-{
-	delete condition;
-	delete statement0;
-	delete statement1;
-}
-Read::~Read()
-{
-	for (auto &i:tokens) delete i;
-}
-Write::~Write()
-{
-	delete token;
-	delete exp;
-}
-Statement::~Statement()
-{
-	delete assignment;
-	delete proc_call;
-	delete do_while;
-	delete for_do;
-	delete if_then;
-	delete read;
-	delete write;
-	delete block;
-}
-Block::~Block()
-{
-	for (auto &i:statements) delete i;
-}
+
 Program::~Program()
 {
 	for (auto &i:const_defs) delete i;
