@@ -51,6 +51,17 @@ ConstDef::~ConstDef()
 	delete value;
 }
 
+void ConstDef::genCode(Coder &coder,SymTab &symtab) const
+{
+	Symbol s;
+	s.kind=constant;
+	s.type=value->type==number?int_t:char_t;
+	s.v=value->v;
+	s.size=value->type==number?INT_SIZE:CHAR_SIZE;
+	symtab.insert(name->s,s);
+	//coder.append("sub","esp",std::to_string(INT_SIZE));
+	//coder.append(Instr("mov","WORD PTR [esp+"+std::to_string(symtab.getSP()-s.addr)+"]",std::to_string(s.v));
+}
 
 VarDef::VarDef(Lexer &lexer,bool f): size(-1),type(nullptr)
 {
@@ -101,8 +112,13 @@ VarDef::VarDef(Lexer &lexer,bool f): size(-1),type(nullptr)
 
 VarDef::~VarDef()
 {
-	for (auto &i:names) delete i;
+	for (const auto &i:names) delete i;
 	delete type;
+}
+
+void VarDef::genCode(Coder &coder,SymTab &symtab) const
+{
+
 }
 
 ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken())),program(nullptr)
@@ -132,8 +148,13 @@ ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken())),program(nullp
 ProcDef::~ProcDef()
 {
 	delete name;
-	for (auto &i:para_list) delete i.second;
+	for (const auto &i:para_list) delete i.second;
 	delete program;
+}
+
+void ProcDef::genCode(Coder &coder,SymTab &symtab) const
+{
+
 }
 
 FuncDef::FuncDef(Lexer &lexer): name(new Token(lexer.currToken())),
@@ -170,29 +191,13 @@ FuncDef::~FuncDef()
 {
 	delete name;
 	delete type;
-	for (auto &i:para_list) delete i.second;
+	for (const auto &i:para_list) delete i.second;
 	delete program;
 }
 
-ProcCall::ProcCall(Token token,Lexer &lexer): name(new Token(token))
+void FuncDef::genCode(Coder &coder,SymTab &symtab) const
 {
-	if (lexer.currToken().type==lparen && lexer.nextToken().type!=rparen)
-	{
-		arg_list.push_back(new Expression(lexer));
-		while (lexer.currToken().type==comma)
-		{
-			lexer.nextToken();
-			arg_list.push_back(new Expression(lexer));
-		}
-		if (lexer.currToken().type==rparen) lexer.nextToken();
-		else warning(lexer,lost_rparen);
-	}
-}
 
-ProcCall::~ProcCall()
-{
-	delete name;
-	for (auto &i:arg_list) delete i;
 }
 
 Factor::Factor(Lexer &lexer): token(nullptr),exp(nullptr)
@@ -231,7 +236,12 @@ Factor::~Factor()
 {
 	delete token;
 	delete exp;
-	for (auto &i:arg_list) delete i;
+	for (const auto &i:arg_list) delete i;
+}
+
+void Factor::genCode(Coder &coder,SymTab &symtab) const
+{
+
 }
 
 Term::Term(Lexer &lexer)
@@ -248,7 +258,12 @@ Term::Term(Lexer &lexer)
 
 Term::~Term()
 {
-	for (auto &i:factors) delete i.first,delete i.second;
+	for (const auto &i:factors) delete i.first,delete i.second;
+}
+
+void Term::genCode(Coder &coder,SymTab &symtab) const
+{
+
 }
 
 Expression::Expression(Lexer &lexer)
@@ -274,7 +289,12 @@ Expression::Expression(Lexer &lexer)
 
 Expression::~Expression()
 {
-	for (auto &i:terms) delete i.first,delete i.second;
+	for (const auto &i:terms) delete i.first,delete i.second;
+}
+
+void Expression::genCode(Coder &coder,SymTab &symtab) const
+{
+
 }
 
 Condition::Condition(Lexer &lexer): token(nullptr),exp0(nullptr),exp1(nullptr)
@@ -300,11 +320,15 @@ Condition::~Condition()
 	delete exp1;
 }
 
-Assignment::Assignment(Token token,Expression *exp,Lexer &lexer):
-		dest(new Token(token)),exp0(exp),exp1(new Expression(lexer))
+void Condition::genCode(Coder &coder,SymTab &symtab) const
 {
 
 }
+
+Statement::~Statement() {}
+
+Assignment::Assignment(Token token,Expression *exp,Lexer &lexer):
+		dest(new Token(token)),exp0(exp),exp1(new Expression(lexer)) {}
 
 Assignment::~Assignment()
 {
@@ -313,9 +337,40 @@ Assignment::~Assignment()
 	delete exp1;
 }
 
+void Assignment::genCode(Coder &coder,SymTab &symtab) const
+{
+
+}
+
+ProcCall::ProcCall(Token token,Lexer &lexer): name(new Token(token))
+{
+	if (lexer.currToken().type==lparen && lexer.nextToken().type!=rparen)
+	{
+		arg_list.push_back(new Expression(lexer));
+		while (lexer.currToken().type==comma)
+		{
+			lexer.nextToken();
+			arg_list.push_back(new Expression(lexer));
+		}
+		if (lexer.currToken().type==rparen) lexer.nextToken();
+		else warning(lexer,lost_rparen);
+	}
+}
+
+ProcCall::~ProcCall()
+{
+	delete name;
+	for (const auto &i:arg_list) delete i;
+}
+
+void ProcCall::genCode(Coder &coder,SymTab &symtab) const
+{
+
+}
+
 DoWhile::DoWhile(Lexer &lexer): condition(nullptr),statement(nullptr)
 {
-	statement=new Statement(lexer);
+	statement=Statement::bear(lexer);
 	if (lexer.currToken().type==word_while)
 	{
 		lexer.nextToken();
@@ -331,6 +386,11 @@ DoWhile::~DoWhile()
 {
 	delete condition;
 	delete statement;
+}
+
+void DoWhile::genCode(Coder &coder,SymTab &symtab) const
+{
+
 }
 
 ForDo::ForDo(Lexer &lexer): token0(nullptr),token1(nullptr),exp0(nullptr),exp1(nullptr),statement(nullptr)
@@ -349,7 +409,7 @@ ForDo::ForDo(Lexer &lexer): token0(nullptr),token1(nullptr),exp0(nullptr),exp1(n
 			if (lexer.currToken().type==word_do)
 			{
 				lexer.nextToken();
-				statement=new Statement(lexer);
+				statement=Statement::bear(lexer);
 			}
 			else
 			{
@@ -376,17 +436,22 @@ ForDo::~ForDo()
 	delete statement;
 }
 
+void ForDo::genCode(Coder &coder,SymTab &symtab) const
+{
+
+}
+
 IfThen::IfThen(Lexer &lexer): condition(nullptr),statement0(nullptr),statement1(nullptr)
 {
 	condition=new Condition(lexer);
 	if (lexer.currToken().type==word_then)
 	{
 		lexer.nextToken();
-		statement0=new Statement(lexer);
+		statement0=Statement::bear(lexer);
 		if (lexer.currToken().type==word_else)
 		{
 			lexer.nextToken();
-			statement1=new Statement(lexer);
+			statement1=Statement::bear(lexer);
 		}
 	}
 	else
@@ -400,6 +465,12 @@ IfThen::~IfThen()
 	delete condition;
 	delete statement0;
 	delete statement1;
+}
+
+void IfThen::genCode(Coder &coder,SymTab &symtab) const
+{
+	//condition->genCode();
+	//coder.
 }
 
 Read::Read(Lexer &lexer)
@@ -422,7 +493,32 @@ Read::Read(Lexer &lexer)
 
 Read::~Read()
 {
-	for (auto &i:tokens) delete i;
+	for (const auto &i:tokens) delete i;
+}
+
+void Read::genCode(Coder &coder,SymTab &symtab) const
+{
+	Symbol symb;
+	for (auto &i:tokens)
+	{
+		if (symtab.find(i->s,symb))
+		{
+			if (symb.kind==variable)
+			{
+				std::string fmt;
+				if (symb.type==int_t) fmt="%d";
+				if (symb.type==char_t) fmt="%c";
+				coder.append({"mov","rdi","fmt"+std::to_string(coder.add(fmt))});
+				coder.append({"mov","rsi","rax"});
+				coder.append({"xor","rax","rax"});
+				coder.append({"call","scanf",""});
+			}
+			else
+			{
+				error(i->s,cannot_read);
+			}
+		}
+	}
 }
 
 Write::Write(Lexer &lexer): token(nullptr),exp(nullptr)
@@ -457,8 +553,22 @@ Write::~Write()
 	delete exp;
 }
 
-Statement::Statement(Lexer &lexer): assignment(nullptr),proc_call(nullptr),
-		do_while(nullptr),for_do(nullptr),if_then(nullptr),read(nullptr),write(nullptr),block(nullptr)
+void Write::genCode(Coder &coder,SymTab &symtab) const
+{
+	std::string fmt;
+	if (token) fmt+=token->s;
+	if (exp)
+	{
+		exp->genCode(coder,symtab);
+		fmt+="%d";
+	}
+	coder.append({"mov","rdi","fmt"+std::to_string(coder.add(fmt))});
+	coder.append({"mov","rsi","rax"});
+	coder.append({"xor","rax","rax"});
+	coder.append({"call","printf",""});
+}
+
+Statement *Statement::bear(Lexer &lexer)
 {
 	const Token token=lexer.currToken();
 	switch (token.type)
@@ -474,81 +584,70 @@ Statement::Statement(Lexer &lexer): assignment(nullptr),proc_call(nullptr),
 				if (lexer.currToken().type==assign)
 				{
 					lexer.nextToken();
-					assignment=new Assignment(token,exp,lexer);
+					return new Assignment(token,exp,lexer);
 				}
 			}
 			else if (lexer.currToken().type==assign)
 			{
 				lexer.nextToken();
-				assignment=new Assignment(token,nullptr,lexer);
+				return new Assignment(token,nullptr,lexer);
 			}
 			else
 			{
-				proc_call=new ProcCall(token,lexer);
+				return new ProcCall(token,lexer);
 			}
 			break;
 		}
 		case word_do:
 		{
 			lexer.nextToken();
-			do_while=new DoWhile(lexer);
+			return new DoWhile(lexer);
 			break;
 		}
 		case word_for:
 		{
 			lexer.nextToken();
-			for_do=new ForDo(lexer);
+			return new ForDo(lexer);
 			break;
 		}
 		case word_if:
 		{
 			lexer.nextToken();
-			if_then=new IfThen(lexer);
+			return new IfThen(lexer);
 			break;
 		}
 		case word_read:
 		{
 			lexer.nextToken();
-			read=new Read(lexer);
+			return new Read(lexer);
 			break;
 		}
 		case word_write:
 		{
 			lexer.nextToken();
-			write=new Write(lexer);
+			return new Write(lexer);
 			break;
 		}
 		case word_begin:
 		{
 			lexer.nextToken();
-			block=new Block(lexer);
+			return new Block(lexer);
 			break;
 		}
 		default:break;
 	}
-}
-
-Statement::~Statement()
-{
-	delete assignment;
-	delete proc_call;
-	delete do_while;
-	delete for_do;
-	delete if_then;
-	delete read;
-	delete write;
-	delete block;
+	return nullptr;
 }
 
 Block::Block(Lexer &lexer)
 {
 	if (lexer.currToken().type!=word_end)
 	{
-		statements.push_back(new Statement(lexer));
+		statements.push_back(Statement::bear(lexer));
 		while (lexer.currToken().type==semicolon)
 		{
 			lexer.nextToken();
-			statements.push_back(new Statement(lexer));
+			statements.push_back(Statement::bear(lexer));
 		}
 		if (lexer.currToken().type==word_end) lexer.nextToken();
 		else error(lexer,lost_end);
@@ -557,7 +656,12 @@ Block::Block(Lexer &lexer)
 
 Block::~Block()
 {
-	for (auto &i:statements) delete i;
+	for (const auto &i:statements) delete i;
+}
+
+void Block::genCode(Coder &coder,SymTab &symtab) const
+{
+	for (const auto &i:statements) i->genCode(coder,symtab);
 }
 
 Program::Program(Lexer &lexer): block(nullptr)
@@ -612,9 +716,18 @@ Program::Program(Lexer &lexer): block(nullptr)
 
 Program::~Program()
 {
-	for (auto &i:const_defs) delete i;
-	for (auto &i:var_defs) delete i;
-	for (auto &i:proc_defs) delete i;
-	for (auto &i:func_defs) delete i;
+	for (const auto &i:const_defs) delete i;
+	for (const auto &i:var_defs) delete i;
+	for (const auto &i:proc_defs) delete i;
+	for (const auto &i:func_defs) delete i;
 	delete block;
+}
+
+void Program::genCode(Coder &coder,SymTab &symtab) const
+{
+	for (const auto &i:const_defs) i->genCode(coder,symtab);
+	for (const auto &i:var_defs) i->genCode(coder,symtab);
+	for (const auto &i:proc_defs) i->genCode(coder,symtab);
+	for (const auto &i:func_defs) i->genCode(coder,symtab);
+	block->genCode(coder,symtab);
 }

@@ -12,24 +12,29 @@
 
 #include <utility>
 #include <vector>
-#include "error.hxx"
 #include "lexer.hxx"
+#include "coder.hxx"
+#include "optimizer.hxx"
+#include "symtab.hxx"
 
 using std::pair;
 using std::make_pair;
 using std::vector;
 
 struct Program;
+
 struct ConstDef
 {
 	ConstDef(Lexer &lexer);
 	~ConstDef();
+	void genCode(Coder &coder,SymTab &symtab) const;
 	Token *name,*value;
 };
 struct VarDef
 {
 	VarDef(Lexer &lexer,bool f=true);
 	~VarDef();
+	void genCode(Coder &coder,SymTab &symtab) const;
 	vector<Token*> names;
 	int size;
 	Token *type;
@@ -38,6 +43,7 @@ struct ProcDef
 {
 	ProcDef(Lexer &lexer);
 	~ProcDef();
+	void genCode(Coder &coder,SymTab &symtab) const;
 	Token *name;
 	vector<pair<bool,VarDef*>> para_list;
 	Program *program;
@@ -46,112 +52,128 @@ struct FuncDef
 {
 	FuncDef(Lexer &lexer);
 	~FuncDef();
+	void genCode(Coder &coder,SymTab &symtab) const;
 	Token *name,*type;
 	vector<pair<bool,VarDef*>> para_list;
 	Program *program;
 };
+
 struct Expression;
-struct ProcCall
-{
-	ProcCall(Token token,Lexer &lexer);
-	~ProcCall();
-	Token *name;
-	vector<Expression*> arg_list;
-};
+
 struct Factor
 {
 	Factor(Lexer &lexer);
 	~Factor();
+	void genCode(Coder &coder,SymTab &symtab) const;
 	Token *token;
 	Expression *exp;
 	vector<Expression*> arg_list;
 };
+
 struct Term
 {
 	Term(Lexer &lexer);
 	~Term();
+	void genCode(Coder &coder,SymTab &symtab) const;
 	vector<pair<Token*,Factor*>> factors;
 };
+
 struct Expression
 {
 	Expression(Lexer &lexer);
 	~Expression();
+	void genCode(Coder &coder,SymTab &symtab) const;
 	vector<pair<Token*,Term*>> terms;
 };
+
 struct Condition
 {
 	Condition(Lexer &lexer);
 	~Condition();
+	void genCode(Coder &coder,SymTab &symtab) const;
 	Token *token;
 	Expression *exp0,*exp1;
 };
-struct Block;
-struct Assignment
+
+struct Statement
+{
+	static Statement *bear(Lexer &lexer);
+	virtual ~Statement()=0;
+	virtual void genCode(Coder &coder,SymTab &symtab) const=0;
+};
+
+
+struct Assignment: Statement
 {
 	Assignment(Token token,Expression *exp,Lexer &lexer);
-	~Assignment();
+	~Assignment() override;
+	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	Token *dest;
 	Expression *exp0,*exp1;
 };
-struct Statement;
-struct DoWhile
+
+struct ProcCall: Statement
+{
+	ProcCall(Token token,Lexer &lexer);
+	~ProcCall();
+	virtual void genCode(Coder &coder,SymTab &symtab) const override;
+	Token *name;
+	vector<Expression*> arg_list;
+};
+
+struct DoWhile: Statement
 {
 	DoWhile(Lexer &lexer);
-	~DoWhile();
+	~DoWhile() override;
+	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	Condition *condition;
 	Statement *statement;
 };
-struct ForDo
+struct ForDo: Statement
 {
 	ForDo(Lexer &lexer);
-	~ForDo();
+	~ForDo() override;
+	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	Token *token0,*token1;
 	Expression *exp0,*exp1;
 	Statement *statement;
 };
-struct IfThen
+struct IfThen: Statement
 {
 	IfThen(Lexer &lexer);
-	~IfThen();
+	~IfThen() override;
+	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	Condition *condition;
 	Statement *statement0,*statement1;
 };
-struct Read
+struct Read: Statement
 {
 	Read(Lexer &lexer);
-	~Read();
+	~Read() override;
+	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	vector<Token*> tokens;
 };
-struct Write
+struct Write: Statement
 {
 	Write(Lexer &lexer);
-	~Write();
+	~Write() override;
+	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	Token *token;
 	Expression *exp;
 };
-struct Statement
-{
-	Statement(Lexer &lexer);
-	~Statement();
-	Assignment *assignment;
-	ProcCall *proc_call;
-	DoWhile *do_while;
-	ForDo *for_do;
-	IfThen *if_then;
-	Read *read;
-	Write *write;
-	Block *block;
-};
-struct Block
+
+struct Block: Statement
 {
 	Block(Lexer &lexer);
 	~Block();
+	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	vector<Statement*> statements;
 };
 struct Program
 {
 	Program(Lexer &Lexer);
 	~Program();
+	void genCode(Coder &coder,SymTab &symtab) const;
 	vector<ConstDef*> const_defs;
 	vector<VarDef*> var_defs;
 	vector<ProcDef*> proc_defs;
