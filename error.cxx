@@ -27,7 +27,6 @@ const char msg[][64]=
 	"'do' expected",
 	"'then' expected",
 	"'end' expected",
-
 	"'.' expected",
 	"':' expected",
 	"';' expected",
@@ -37,7 +36,11 @@ const char msg[][64]=
 	"']' expected",
 	"'=' expected",
 	"relational operator expected",
-
+	//analyser
+	"cannot read",
+	//symtab
+	"symbol redeclared",
+	"symbol undefined"
 };
 
 bool success=true;
@@ -49,6 +52,12 @@ void error(const Lexer &lexer,Error e)
 	fprintf(stderr,"r%dc%d: '%s': error: %s\n",
 			pos.first,pos.second,lexer.currToken().s.c_str(),msg[e]);
 }
+
+void error(const std::string &s,Error e)
+{
+	fprintf(stderr,"%s: %s\n",s.c_str(),msg[e]);
+}
+
 void warning(const Lexer &lexer,Error w)
 {
 	auto pos=lexer.getPos();

@@ -43,13 +43,18 @@ enum Error
 	lost_rparen,
 	lost_eql,
 	lost_relational,
-
+	//analyser
+	cannot_read,
+	//symtab
+	redeclaration,
+	undefinition
 };
 
 extern const char msg[][64];
 extern bool success;
 
 void error(const Lexer &lexer,Error e);
+void error(const std::string &s,Error e);
 void warning(const Lexer &lexer,Error w);
 
 #endif /* ERROR_HXX */
