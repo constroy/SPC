@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-std=c++11 -O2
+CXXFLAGS=-std=c++11 -g -O2
 SRC=$(wildcard *.cxx)
 HEAD=$(wildcard *.hxx)
 OBJ=$(SRC:.cxx=.o)
