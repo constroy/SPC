@@ -43,11 +43,18 @@ enum Error
 	lost_rparen,
 	lost_eql,
 	lost_relational,
+	empty_statement,
 	//analyser
+	not_array,
+	lost_subscript,
+	not_value,
+	cannot_call,
 	cannot_read,
+	wrong_arg_num,
+	ref_rvalue,
 	//symtab
 	redeclaration,
-	undefinition
+	undefinition,
 };
 
 extern const char msg[][64];

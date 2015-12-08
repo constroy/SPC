@@ -36,8 +36,15 @@ const char msg[][64]=
 	"']' expected",
 	"'=' expected",
 	"relational operator expected",
+	"empty statement",
 	//analyser
+	"is not an array",
+	"subscript expected",
+	"is not a value",
+	"cannot call",
 	"cannot read",
+	"too few/many arguments",
+	"rvalue reference",
 	//symtab
 	"symbol redeclared",
 	"symbol undefined"
@@ -55,6 +62,7 @@ void error(const Lexer &lexer,Error e)
 
 void error(const std::string &s,Error e)
 {
+	success=false;
 	fprintf(stderr,"%s: %s\n",s.c_str(),msg[e]);
 }
 
