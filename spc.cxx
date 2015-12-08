@@ -8,6 +8,7 @@
 
 #include <cstdio>
 #include "parser.hxx"
+#include "analyser.hxx"
 
 int main(int argc,char *argv[])
 {
@@ -17,9 +18,13 @@ int main(int argc,char *argv[])
 		return 0;
 	}
 	//unit test [Paser]------------------------------------------------
-	//freopen(argv[2],"w",stdout);
 	Parser parser(argv[1]);
 	const Program *prog=parser.genAST();
+	if (success)
+	{
+		Analyser analyser(prog,argv[2]);
+		analyser.genCode();
+	}
 	parser.delAST();
 	//-----------------------------------------------------------------
 	return 0;
