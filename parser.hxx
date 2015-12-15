@@ -25,7 +25,6 @@ class Parser
 		Program *program;
 		Lexer lexer;
 		Token token;
-		/* add your private declarations */
 };
 
 #endif /* PARSER_HXX */

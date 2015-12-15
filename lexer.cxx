@@ -30,28 +30,32 @@ const std::map<std::string,TokenType> Lexer::symb=
 	{":",colon},{",",comma},{";",semicolon},{".",period}
 };
 
-Lexer::Lexer(char file[]): src(fopen(file,"r"))
+Lexer::Lexer(const char file[]): src(fopen(file,"r"))
 {
 	if (!src)
 	{
-		error(*this,open_failed);
+		error(std::string(file),open_failed);
 		exit(1);
 	}
 	row=1,col=0;
 	read();
 }
+
 Lexer::~Lexer()
 {
 	fclose(src);
 }
+
 const Pos &Lexer::getPos() const
 {
 	return pos;
 }
+
 const Token &Lexer::currToken() const
 {
 	return token;
 }
+
 const Token &Lexer::nextToken()
 {
 	while (isspace(chr)) read();
@@ -84,8 +88,8 @@ const Token &Lexer::nextToken()
 			read();
 		}
 		token.type=number;
+		token.s=std::to_string(num);
 		token.v=num;
-		token.s="number";
 	}
 	else if (ispunct(chr))
 	{
@@ -132,7 +136,6 @@ const Token &Lexer::nextToken()
 				buff+=chr;
 				read();
 			}
-			//printf("symb: %s\n",buff.c_str());
 			if (symb.count(buff))
 			{
 				token.type=symb.at(buff);
@@ -148,9 +151,9 @@ const Token &Lexer::nextToken()
 	{
 		error(*this,unknown_character);
 	}
-
 	return token;
 }
+
 void Lexer::read()
 {
 	chr=fgetc(src);

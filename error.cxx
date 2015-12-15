@@ -63,7 +63,7 @@ void error(const Lexer &lexer,Error e)
 void error(const std::string &s,Error e)
 {
 	success=false;
-	fprintf(stderr,"%s: %s\n",s.c_str(),msg[e]);
+	fprintf(stderr,"error: %s: %s\n",s.c_str(),msg[e]);
 }
 
 void warning(const Lexer &lexer,Error w)

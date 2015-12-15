@@ -10,13 +10,19 @@
 #ifndef ANALYSER_HXX
 #define ANALYSER_HXX
 
+#include "component.hxx"
+#include "symtab.hxx"
+
 class Analyser
 {
 	public:
-		Analyser();
-
+		Analyser(const Program *prog,const char file[]);
+		void genCode();
 	private:
-		/* add your private declarations */
+		const Program *program;
+		FILE *dst;
+		SymTab symtab;
+		Coder coder;
 };
 
 #endif /* ANALYSER_HXX */

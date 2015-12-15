@@ -17,7 +17,7 @@ int main(int argc,char *argv[])
 		puts("usage: spc [src_name] [obj_name]");
 		return 0;
 	}
-	//unit test [Paser]------------------------------------------------
+	//------------------------------------------------
 	Parser parser(argv[1]);
 	const Program *prog=parser.genAST();
 	if (success)
@@ -26,6 +26,6 @@ int main(int argc,char *argv[])
 		analyser.genCode();
 	}
 	parser.delAST();
-	//-----------------------------------------------------------------
+	//------------------------------------------------
 	return 0;
 }
