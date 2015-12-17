@@ -1,5 +1,5 @@
 /*
- * parser.hxx
+ * parser.hpp
  *
  * Copyright 2015 constroy <constroy.li@gmail.com>
  *
@@ -7,7 +7,10 @@
  */
 
 
-#include "component.hxx"
+#include "component.hpp"
+
+using std::make_pair;
+using std::to_string;
 
 ConstDef::ConstDef(Lexer &lexer): name(nullptr),value(nullptr)
 {
@@ -205,9 +208,9 @@ ProcDef::ProcDef(Lexer &lexer): name(new Token(lexer.currToken())),
 		}
 		if (lexer.currToken().type==rparen) lexer.nextToken();
 		else warning(lexer,lost_rparen);
-		if (lexer.currToken().type==semicolon) lexer.nextToken();
-		else warning(lexer,lost_semicolon);
 	}
+	if (lexer.currToken().type==semicolon) lexer.nextToken();
+	else warning(lexer,lost_semicolon);
 	program=new Program(lexer);
 	if (lexer.currToken().type==semicolon) lexer.nextToken();
 	else warning(lexer,lost_semicolon);
@@ -229,23 +232,22 @@ void ProcDef::scan(Coder &coder,SymTab &symtab) const
 		for (int j=0;j<(int)i.second->names.size();++j)
 			symb.ref_para.push_back(i.first);
 	}
-	symtab.insert(name->s,symb);
+	symtab.insert(name->s+"@",symb);
 }
 
 void ProcDef::genCode(Coder &coder,SymTab &symtab) const
 {
-	symtab.push();
+	symtab.push(name->s);
 	for (auto const &i:para_list) i.second->scan(coder,symtab);
 	program->scan(coder,symtab);
 	if (success)
 	{
 		coder.unique();
 		symtab.alloc();
-		coder.append({name->s+":"});
+		coder.append({symtab.getName(symtab.getLevel())+":"});
 		program->genCode(coder,symtab,"");
 	}
 	symtab.pop();
-
 }
 
 FuncDef::FuncDef(Lexer &lexer): name(new Token(lexer.currToken())),
@@ -274,7 +276,10 @@ FuncDef::FuncDef(Lexer &lexer): name(new Token(lexer.currToken())),
 		type=new Token(lexer.currToken());
 		lexer.nextToken();
 	}
-	else error(lexer,lost_type);
+	else
+	{
+		error(lexer,lost_type);
+	}
 	if (lexer.currToken().type==semicolon) lexer.nextToken();
 	else warning(lexer,lost_semicolon);
 	program=new Program(lexer);
@@ -304,7 +309,7 @@ void FuncDef::scan(Coder &coder,SymTab &symtab) const
 
 void FuncDef::genCode(Coder &coder,SymTab &symtab) const
 {
-	symtab.push();
+	symtab.push(name->s);
 	for (auto const &i:para_list) i.second->scan(coder,symtab);
 	Symbol symb={variable,
 			type->type==word_integer?int_t:char_t,
@@ -315,7 +320,7 @@ void FuncDef::genCode(Coder &coder,SymTab &symtab) const
 	{
 		coder.unique();
 		symtab.alloc();
-		coder.append({name->s+"@:"});
+		coder.append({symtab.getName(symtab.getLevel())+":"});
 		symtab.find(name->s,symb);
 		program->genCode(coder,symtab,symb.val());
 	}
@@ -347,12 +352,14 @@ Factor::Factor(Lexer &lexer): token(nullptr),exp(nullptr)
 			else if (lexer.currToken().type==lparen)
 			{
 				token->s+="@";
-				lexer.nextToken();
-				arg_list.push_back(new Expression(lexer));
-				while (lexer.currToken().type==comma)
+				if (lexer.nextToken().type!=rparen)
 				{
-					lexer.nextToken();
 					arg_list.push_back(new Expression(lexer));
+					while (lexer.currToken().type==comma)
+					{
+						lexer.nextToken();
+						arg_list.push_back(new Expression(lexer));
+					}
 				}
 				if (lexer.currToken().type==rparen) lexer.nextToken();
 				else warning(lexer,lost_rparen);
@@ -408,22 +415,26 @@ void Factor::scan(Coder &coder,SymTab &symtab)
 				{
 					if (symb.ref_para.size()==arg_list.size())
 					{
+						const Factor *factor;
 						for (int i=symb.ref_para.size()-1;i>=0;--i)
 						{
-							if (symb.ref_para[i] &&
-									!arg_list[i]->isVar(symtab))
+							if (symb.ref_para[i])
 							{
-								error(token->s,ref_rvalue);
-								break;
+									factor=arg_list[i]->getFactor();
+									if (!(factor && factor->token))
+									{
+										error(token->s,ref_rvalue);
+										break;
+									}
 							}
 							arg_list[i]->scan(coder,symtab);
 						}
-						coder.putTAC({semicolon});
 					}
 					else
 					{
 						error(token->s,wrong_arg_num);
 					}
+					coder.putTAC({semicolon});
 				}
 				else if (symb.kind==array)
 				{
@@ -472,13 +483,22 @@ void Factor::genCode(Coder &coder,SymTab &symtab) const
 					if (symtab.find(arg_list[i]->res.s,arg)) coder.append({"push",arg.val()});
 				}
 				coder.save_reg(symtab);
-				coder.append({"call",token->s});
+				coder.append({"call",symtab.getName(symb.level)+token->s});
 				coder.sync_reg(symtab);
+				const Factor *factor;
 				for (int i=0;i<(int)symb.ref_para.size();++i)
 				{
 					if (symb.ref_para[i])
 					{
-						coder.append({"pop",arg_list[i]->getVar(symtab).val()});
+						factor=arg_list[i]->getFactor();
+						if (factor->exp)
+						{
+							Symbol temp;
+							symtab.find(factor->exp->res.s,temp);
+							coder.append({"movsx","rcx",temp.val()});
+						}
+						symtab.find(factor->token->s,arg);
+						coder.append({"pop",arg.val()});
 					}
 					else
 					{
@@ -511,24 +531,10 @@ Term::~Term()
 	for (const auto &i:factors) delete i.first,delete i.second;
 }
 
-bool Term::isVar(const SymTab &symtab) const
+const Factor* Term::getFactor() const
 {
-	if (factors.size()==1)
-	{
-		Symbol symb;
-		if (symtab.find(factors[0].second->token->s,symb))
-		{
-			return symb.kind==variable;
-		}
-	}
-	return false;
-}
-
-Symbol Term::getVar(const SymTab &symtab) const
-{
-	Symbol symb;
-	symtab.find(factors[0].second->token->s,symb);
-	return symb;
+	if (factors.size()==1) return factors[0].second;
+	else return nullptr;
 }
 
 void Term::scan(Coder &coder,SymTab &symtab)
@@ -581,14 +587,10 @@ Expression::~Expression()
 	for (const auto &i:terms) delete i.first,delete i.second;
 }
 
-bool Expression::isVar(const SymTab &symtab) const
+const Factor *Expression::getFactor() const
 {
-	return terms.size()==1 && terms[0].second->isVar(symtab);
-}
-
-Symbol Expression::getVar(const SymTab &symtab) const
-{
-	return terms[0].second->getVar(symtab);
+	if (terms.size()==1) return terms[0].second->getFactor();
+	else return nullptr;
 }
 
 void Expression::scan(Coder &coder,SymTab &symtab)
@@ -790,6 +792,7 @@ void Assignment::genCode(Coder &coder,SymTab &symtab) const
 
 ProcCall::ProcCall(Token token,Lexer &lexer): name(new Token(token))
 {
+	name->s+="@";
 	if (lexer.currToken().type==lparen && lexer.nextToken().type!=rparen)
 	{
 		arg_list.push_back(new Expression(lexer));
@@ -818,13 +821,17 @@ void ProcCall::scan(Coder &coder,SymTab &symtab)
 		{
 			if (symb.ref_para.size()==arg_list.size())
 			{
+				const Factor *factor;
 				for (int i=symb.ref_para.size()-1;i>=0;--i)
 				{
-					if (symb.ref_para[i] &&
-							!arg_list[i]->isVar(symtab))
+					if (symb.ref_para[i])
 					{
-						error(name->s,ref_rvalue);
-						break;
+							factor=arg_list[i]->getFactor();
+							if (!(factor && factor->token))
+							{
+								error(name->s,ref_rvalue);
+								break;
+							}
 					}
 					arg_list[i]->scan(coder,symtab);
 				}
@@ -833,13 +840,13 @@ void ProcCall::scan(Coder &coder,SymTab &symtab)
 			{
 				error(name->s,wrong_arg_num);
 			}
+			coder.putTAC({semicolon});
 		}
 		else
 		{
 			error(name->s,cannot_call);
 		}
 	}
-	coder.putTAC({semicolon});
 }
 
 void ProcCall::genCode(Coder &coder,SymTab &symtab) const
@@ -852,13 +859,22 @@ void ProcCall::genCode(Coder &coder,SymTab &symtab) const
 		if (symtab.find(arg_list[i]->res.s,arg)) coder.append({"push",arg.val()});
 	}
 	coder.save_reg(symtab);
-	coder.append({"call",name->s});
+	coder.append({"call",symtab.getName(symb.level)+name->s});
 	coder.sync_reg(symtab);
+	const Factor *factor;
 	for (int i=0;i<(int)symb.ref_para.size();++i)
 	{
 		if (symb.ref_para[i])
 		{
-			coder.append({"pop",arg_list[i]->getVar(symtab).val()});
+			factor=arg_list[i]->getFactor();
+			if (factor->exp)
+			{
+				Symbol temp;
+				symtab.find(factor->exp->res.s,temp);
+				coder.append({"movsx","rcx",temp.val()});
+			}
+			symtab.find(factor->token->s,arg);
+			coder.append({"pop",arg.val()});
 		}
 		else
 		{
@@ -1079,8 +1095,14 @@ void Read::genCode(Coder &coder,SymTab &symtab) const
 		if (symb.type==char_t) fmt="'%c'";
 		coder.save_reg(symtab);
 		coder.push_reg(symtab.getLevel());
-		coder.append({"mov","rdi","fmt"+to_string(coder.add(fmt))});
+#ifdef __linux__
 		coder.append({"lea","rsi","["+symb.addr()+"]"});
+		coder.append({"mov","rdi","fmt"+to_string(coder.add(fmt))});
+#endif
+#ifdef _WIN64
+		coder.append({"lea","rdx","["+symb.addr()+"]"});
+		coder.append({"mov","rcx","fmt"+to_string(coder.add(fmt))});
+#endif
 		coder.append({"xor","rax","rax"});
 		coder.append({"call","scanf"});
 		coder.pop_reg(symtab.getLevel());
@@ -1133,15 +1155,23 @@ void Write::genCode(Coder &coder,SymTab &symtab) const
 	if (token) fmt+=token->s;
 	if (exp)
 	{
+		const Factor *factor=exp->getFactor();
 		exp->genCode(coder,symtab);
-		symtab.find(exp->res.s,symb);
+		if (factor) symtab.find(factor->token->s,symb);
+		else symtab.find(exp->res.s,symb);
 		fmt+=symb.type==int_t?"%hd":"%c";
 	}
 	fmt+="', 0Ah";
 	coder.save_reg(symtab);
 	coder.push_reg(symtab.getLevel());
+#ifdef __linux__
 	if (exp) coder.append({"movsx","rsi",symb.val()});
 	coder.append({"mov","rdi","fmt"+to_string(coder.add(fmt))});
+#endif
+#ifdef _WIN64
+	if (exp) coder.append({"movsx","rdx",symb.val()});
+	coder.append({"mov","rcx","fmt"+to_string(coder.add(fmt))});
+#endif
 	coder.append({"xor","rax","rax"});
 	coder.append({"call","printf"});
 	coder.pop_reg(symtab.getLevel());

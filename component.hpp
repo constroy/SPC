@@ -1,5 +1,5 @@
 /*
- * parser.hxx
+ * parser.hpp
  *
  * Copyright 2015 constroy <constroy.li@gmail.com>
  *
@@ -7,20 +7,14 @@
  */
 
 
-#ifndef COMPONENT_HXX
-#define COMPONENT_HXX
+#ifndef COMPONENT_HPP
+#define COMPONENT_HPP
 
 #include <utility>
 #include <vector>
-#include "lexer.hxx"
-#include "coder.hxx"
-#include "optimizer.hxx"
-#include "symtab.hxx"
-
-using std::pair;
-using std::make_pair;
-using std::vector;
-using std::to_string;
+#include "lexer.hpp"
+#include "coder.hpp"
+#include "symtab.hpp"
 
 struct Program;
 
@@ -37,7 +31,7 @@ struct VarDef
 	VarDef(Lexer &lexer);
 	~VarDef();
 	void scan(Coder &coder,SymTab &symtab) const;
-	vector<Token*> names;
+	std::vector<Token*> names;
 	int size;
 	Token *type;
 };
@@ -47,7 +41,7 @@ struct ParaDef
 	ParaDef(Lexer &lexer);
 	~ParaDef();
 	void scan(Coder &coder,SymTab &symtab) const;
-	vector<Token*> names;
+	std::vector<Token*> names;
 	int size;
 	Token *type;
 };
@@ -59,7 +53,7 @@ struct ProcDef
 	void scan(Coder &coder,SymTab &symtab) const;
 	void genCode(Coder &coder,SymTab &symtab) const;
 	Token *name;
-	vector<pair<bool,ParaDef*>> para_list;
+	std::vector<std::pair<bool,ParaDef*>> para_list;
 	Program *program;
 };
 
@@ -70,7 +64,7 @@ struct FuncDef
 	void scan(Coder &coder,SymTab &symtab) const;
 	void genCode(Coder &coder,SymTab &symtab) const;
 	Token *name,*type;
-	vector<pair<bool,ParaDef*>> para_list;
+	std::vector<std::pair<bool,ParaDef*>> para_list;
 	Program *program;
 };
 
@@ -84,7 +78,7 @@ struct Factor
 	void genCode(Coder &coder,SymTab &symtab) const;
 	Token *token;
 	Expression *exp;
-	vector<Expression*> arg_list;
+	std::vector<Expression*> arg_list;
 	int i;
 	Token res;
 };
@@ -93,11 +87,10 @@ struct Term
 {
 	Term(Lexer &lexer);
 	~Term();
-	bool isVar(const SymTab &symtab) const;
-	Symbol getVar(const SymTab &symtab) const;
+	const Factor *getFactor() const;
 	void scan(Coder &coder,SymTab &symtab);
 	void genCode(Coder &coder,SymTab &symtab) const;
-	vector<pair<Token*,Factor*>> factors;
+	std::vector<std::pair<Token*,Factor*>> factors;
 	Token res;
 };
 
@@ -105,11 +98,10 @@ struct Expression
 {
 	Expression(Lexer &lexer);
 	~Expression();
-	bool isVar(const SymTab &symtab) const;
-	Symbol getVar(const SymTab &symtab) const;
+	const Factor *getFactor() const;
 	void scan(Coder &coder,SymTab &symtab);
 	void genCode(Coder &coder,SymTab &symtab) const;
-	vector<pair<Token*,Term*>> terms;
+	std::vector<std::pair<Token*,Term*>> terms;
 	Token res;
 };
 
@@ -148,7 +140,7 @@ struct ProcCall: Statement
 	virtual void scan(Coder &coder,SymTab &symtab) override;
 	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	Token *name;
-	vector<Expression*> arg_list;
+	std::vector<Expression*> arg_list;
 };
 
 struct DoWhile: Statement
@@ -187,7 +179,7 @@ struct Read: Statement
 	~Read() override;
 	virtual void scan(Coder &coder,SymTab &symtab) override;
 	virtual void genCode(Coder &coder,SymTab &symtab) const override;
-	vector<Token*> tokens;
+	std::vector<Token*> tokens;
 };
 struct Write: Statement
 {
@@ -205,7 +197,7 @@ struct Block: Statement
 	~Block();
 	virtual void scan(Coder &coder,SymTab &symtab) override;
 	virtual void genCode(Coder &coder,SymTab &symtab) const override;
-	vector<Statement*> statements;
+	std::vector<Statement*> statements;
 };
 struct Program
 {
@@ -213,11 +205,11 @@ struct Program
 	~Program();
 	void scan(Coder &coder,SymTab &symtab) const;
 	void genCode(Coder &coder,SymTab &symtab,const std::string &val) const;
-	vector<ConstDef*> const_defs;
-	vector<VarDef*> var_defs;
-	vector<ProcDef*> proc_defs;
-	vector<FuncDef*> func_defs;
+	std::vector<ConstDef*> const_defs;
+	std::vector<VarDef*> var_defs;
+	std::vector<ProcDef*> proc_defs;
+	std::vector<FuncDef*> func_defs;
 	Block *block;
 };
 
-#endif /* COMPONENT_HXX */
+#endif /* COMPONENT_HPP */
