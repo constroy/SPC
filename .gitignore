@@ -1,4 +1,6 @@
+.gitignore
 spc
+a.*
 *.o
 *.gch
 *.out
