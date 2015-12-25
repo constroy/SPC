@@ -5,7 +5,7 @@
  */
 
 
-#include "error.hxx"
+#include "error.hpp"
 
 const char msg[][64]=
 {

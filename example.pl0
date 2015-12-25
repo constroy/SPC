@@ -1,0 +1,76 @@
+const
+	laugh=2333,
+	z1=-0,
+	z2=000,
+	z3=001,
+	z4=-01;
+
+var
+	c: char;
+	n,m,i: integer;
+	a: array[7] of integer;
+
+function fun: integer;
+var
+	x: integer;
+begin
+	fun:=1;
+	x:=fun+1;
+	fun:=x-1;
+end;
+
+procedure print(a,b: char);
+var
+	c: char;
+begin
+	for c:=a to b do
+		write(c);
+end;
+
+procedure init(x: integer);
+begin
+	n:=x;
+	a[0]:=1;
+	for i:=1 to n do
+		a[i]:=i*a[i-01];
+end;
+
+function fac(n: integer): integer;
+begin
+	if n=-0 then fac:=1
+	else fac:=n*fac(n-1);
+end;
+
+function com(n,m: integer): integer;
+begin
+	com:=a[n] / a[m] / a[n-m];
+end;
+
+begin
+	write(z1);
+	write(z2);
+	write(z3);
+	write(z4);
+	write("laugh",laugh);
+	print('A','Z');
+	print('a','z');
+	print('0','9');
+	init(7);
+	if a[n]<>fac(n) then write("wrong");
+	for i:=n downto fun do
+		a[i-1]:=a[i] / i;
+	if a[000]<>+1 then write("wrong");
+	init(07);
+	do
+	begin
+		read(n,m);
+		if n<>z4 then write(com(n,m))
+	end	
+	while n<>z4
+end.
+
+begin
+	write("***THIS SHOULD NEVER BE READ***");
+	die();
+end.
+

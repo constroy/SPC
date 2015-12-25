@@ -1,5 +1,5 @@
 /*
- * lexer.hxx
+ * lexer.hpp
  *
  * Copyright 2015 constroy <constroy.li@gmail.com>
  *
@@ -7,8 +7,8 @@
  */
 
 
-#ifndef LEXER_HXX
-#define LEXER_HXX
+#ifndef LEXER_HPP
+#define LEXER_HPP
 
 #include <cstdlib>
 #include <cstdio>
@@ -62,4 +62,4 @@ class Lexer
 		void read();
 };
 
-#endif /* LEXER_HXX */
+#endif /* LEXER_HPP */

@@ -1,5 +1,5 @@
 /*
- * error.hxx
+ * error.hpp
  *
  * Copyright 2015 constroy <constroy.li@gmail.com>
  *
@@ -7,12 +7,12 @@
  */
 
 
-#ifndef ERROR_HXX
-#define ERROR_HXX
+#ifndef ERROR_HPP
+#define ERROR_HPP
 
 #include <cstdio>
 #include <utility>
-#include "lexer.hxx"
+#include "lexer.hpp"
 
 enum Error
 {
@@ -64,4 +64,4 @@ void error(const Lexer &lexer,Error e);
 void error(const std::string &s,Error e);
 void warning(const Lexer &lexer,Error w);
 
-#endif /* ERROR_HXX */
+#endif /* ERROR_HPP */

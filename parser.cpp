@@ -7,7 +7,7 @@
  */
 
 
-#include "parser.hxx"
+#include "parser.hpp"
 
 Parser::Parser(char file[]): program(nullptr),lexer(file)
 {

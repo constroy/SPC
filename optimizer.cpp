@@ -12,6 +12,6 @@
  */
 
 
-#include "optimizer.hxx"
+#include "optimizer.hpp"
 
 

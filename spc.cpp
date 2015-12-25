@@ -7,14 +7,14 @@
  */
 
 #include <cstdio>
-#include "parser.hxx"
-#include "analyser.hxx"
+#include "parser.hpp"
+#include "analyser.hpp"
 
 int main(int argc,char *argv[])
 {
 	if (argc!=3)
 	{
-		puts("usage: spc [src_name] [obj_name]");
+		puts("usage: spc [src_name] [asm_name]");
 		return 0;
 	}
 	//------------------------------------------------

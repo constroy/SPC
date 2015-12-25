@@ -7,8 +7,8 @@
  */
 
 
-#include "lexer.hxx"
-#include "error.hxx"
+#include "lexer.hpp"
+#include "error.hpp"
 
 const std::map<std::string,TokenType> Lexer::word=
 {
@@ -84,7 +84,7 @@ const Token &Lexer::nextToken()
 		while (isdigit(chr))
 		{
 			num=num*10+chr-'0';
-			if (num>=SHRT_MAX) warning(*this,integer_overflow);
+			if (num>USHRT_MAX) warning(*this,integer_overflow);
 			read();
 		}
 		token.type=number;

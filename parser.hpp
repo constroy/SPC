@@ -1,5 +1,5 @@
 /*
- * parser.hxx
+ * parser.hpp
  *
  * Copyright 2015 constroy <constroy.li@gmail.com>
  *
@@ -7,12 +7,12 @@
  */
 
 
-#ifndef PARSER_HXX
-#define PARSER_HXX
+#ifndef PARSER_HPP
+#define PARSER_HPP
 
-#include "error.hxx"
-#include "lexer.hxx"
-#include "component.hxx"
+#include "error.hpp"
+#include "lexer.hpp"
+#include "component.hpp"
 
 class Parser
 {
@@ -27,4 +27,4 @@ class Parser
 		Token token;
 };
 
-#endif /* PARSER_HXX */
+#endif /* PARSER_HPP */

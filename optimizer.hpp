@@ -7,15 +7,13 @@
  */
 
 
-#ifndef OPTIMIZER_HXX
-#define OPTIMIZER_HXX
+#ifndef OPTIMIZER_HPP
+#define OPTIMIZER_HPP
 
 #include <array>
 #include <vector>
-#include "lexer.hxx"
-#include "symtab.hxx"
-
-using std::vector;
+#include "lexer.hpp"
+#include "symtab.hpp"
 
 /*
  * Three-addests code (op,dest,arg0,arg1)
@@ -40,7 +38,7 @@ class Optimizer
 	public:
 		void optimize();
 	private:
-		vector<TAC> tacs;
+		std::vector<TAC> tacs;
 };
 
-#endif /* OPTIMIZER_HXX */
+#endif /* OPTIMIZER_HPP */

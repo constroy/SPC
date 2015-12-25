@@ -7,14 +7,12 @@
  */
 
 
-#include "symtab.hxx"
+#include "symtab.hpp"
 
 using std::to_string;
 
 const char base_reg[BASE_REG_NUM][4]={"r8","r9","r10","r11","r12","r13","r14","r15"};
 const char free_reg[FREE_REG_NUM][3]={"bx","si","di"};
-
-SymTab::SymTab(): loop_level(0),tp(0) {}
 
 std::string Symbol::addr() const
 {
@@ -52,9 +50,17 @@ bool Symbol::operator <(const Symbol &symb) const
 	return this->weight<symb.weight;
 }
 
+SymTab::SymTab(): loop_level(0),tp(0) {}
+
 int SymTab::getLevel() const
 {
 	return tp-1;
+}
+
+std::string SymTab::getName(int l) const
+{
+	if (0<=l && l<tp) return names[l];
+	else return "";
 }
 
 int SymTab::localSize() const
@@ -62,12 +68,14 @@ int SymTab::localSize() const
 	return -local_p;
 }
 
-void SymTab::push()
+void SymTab::push(const std::string &s)
 {
 	if (tp<BASE_REG_NUM)
 	{
 		local_p=0;
 		param_p=2*REG_SIZE;
+		if (tp) names[tp]=names[tp-1]+s+"@";
+		else names[tp]=s+"@";
 		t[tp].clear();
 		++tp;
 	}
