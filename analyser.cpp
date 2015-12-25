@@ -7,7 +7,7 @@
  */
 
 
-#include "analyser.hxx"
+#include "analyser.hpp"
 
 Analyser::Analyser(const Program *prog,const char file[]):
 		program(prog),dst(fopen(file,"w")),coder(symtab)
@@ -21,14 +21,14 @@ Analyser::Analyser(const Program *prog,const char file[]):
 
 void Analyser::genCode()
 {
-	symtab.push();
+	symtab.push("main");
 	program->scan(coder,symtab);
 	if (success)
 	{
 		coder.unique();
 		symtab.alloc();
 		coder.append({"main:"});
-		program->genCode(coder,symtab,"");
+		program->genCode(coder,symtab,"0");
 		/*
 		coder.append({"mov","rax","60"});
 		coder.append({"mov","rdi","0"});

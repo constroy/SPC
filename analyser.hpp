@@ -1,5 +1,5 @@
 /*
- * analyser.hxx
+ * analyser.hpp
  *
  * Copyright 2015 constroy <constroy.li@gmail.com>
  *
@@ -7,11 +7,11 @@
  */
 
 
-#ifndef ANALYSER_HXX
-#define ANALYSER_HXX
+#ifndef ANALYSER_HPP
+#define ANALYSER_HPP
 
-#include "component.hxx"
-#include "symtab.hxx"
+#include "component.hpp"
+#include "symtab.hpp"
 
 class Analyser
 {
@@ -25,4 +25,4 @@ class Analyser
 		Coder coder;
 };
 
-#endif /* ANALYSER_HXX */
+#endif /* ANALYSER_HPP */

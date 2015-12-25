@@ -1,5 +1,5 @@
 /*
- * coder.hxx
+ * coder.hpp
  *
  * Copyright 2015 constroy <constroy.li@gmail.com>
  *
@@ -7,20 +7,16 @@
  */
 
 
-#ifndef CODER_HXX
-#define CODER_HXX
+#ifndef CODER_HPP
+#define CODER_HPP
 
 #include <string>
 #include <array>
 #include <vector>
 #include <queue>
-#include "lexer.hxx"
-#include "symtab.hxx"
-#include "optimizer.hxx"
-
-using std::vector;
-using std::queue;
-using std::to_string;
+#include "lexer.hpp"
+#include "symtab.hpp"
+#include "optimizer.hpp"
 
 typedef std::array<std::string,3> Instr;
 
@@ -44,10 +40,10 @@ class Coder
 	private:
 		void transTAC(const TAC &tac);
 		SymTab &symtab;
-		vector<std::string> data;
-		vector<Instr> text;
-		vector<TAC> tacs;
-		queue<TAC> tacs2;
+		std::vector<std::string> data;
+		std::vector<Instr> text;
+		std::vector<TAC> tacs;
+		std::queue<TAC> tacs2;
 };
 
-#endif /* CODER_HXX */
+#endif /* CODER_HPP */

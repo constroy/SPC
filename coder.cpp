@@ -7,7 +7,9 @@
  */
 
 
-#include "coder.hxx"
+#include "coder.hpp"
+
+using std::to_string;
 
 Coder::Coder(SymTab &symtab): symtab(symtab) {}
 
@@ -243,7 +245,7 @@ void Coder::transTAC(const TAC &tac)
 void Coder::calc(const Token &res)
 {
 	printf("calc: %s\n",res.s.c_str());
-	while (!tacs2.empty() && tacs2.front()[1]==res)
+	if (!tacs2.empty() && tacs2.front()[1]==res)
 	{
 		//
 		TAC tac=tacs2.front();
@@ -260,6 +262,7 @@ void Coder::calc(const Token &res)
 std::string Coder::listCode() const
 {
 	std::string code="BITS 64\n";
+	code+="extern exit\n";
 	code+="extern scanf\n";
 	code+="extern printf\n";
 	code+="global main\n";

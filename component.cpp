@@ -495,7 +495,8 @@ void Factor::genCode(Coder &coder,SymTab &symtab) const
 						{
 							Symbol temp;
 							symtab.find(factor->exp->res.s,temp);
-							coder.append({"movsx","rcx",temp.val()});
+							if (temp.kind==constant) coder.append({"mov","rcx",temp.val()});
+							else coder.append({"movsx","rcx",temp.val()});
 						}
 						symtab.find(factor->token->s,arg);
 						coder.append({"pop",arg.val()});
@@ -780,7 +781,6 @@ void Assignment::scan(Coder &coder,SymTab &symtab)
 		Token op={eql};
 		coder.putTAC({op,*dest,exp1->res});
 	}
-
 }
 
 void Assignment::genCode(Coder &coder,SymTab &symtab) const
@@ -871,7 +871,8 @@ void ProcCall::genCode(Coder &coder,SymTab &symtab) const
 			{
 				Symbol temp;
 				symtab.find(factor->exp->res.s,temp);
-				coder.append({"movsx","rcx",temp.val()});
+				if (temp.kind==constant) coder.append({"mov","rcx",temp.val()});
+				else coder.append({"movsx","rcx",temp.val()});
 			}
 			symtab.find(factor->token->s,arg);
 			coder.append({"pop",arg.val()});
@@ -1165,11 +1166,19 @@ void Write::genCode(Coder &coder,SymTab &symtab) const
 	coder.save_reg(symtab);
 	coder.push_reg(symtab.getLevel());
 #ifdef __linux__
-	if (exp) coder.append({"movsx","rsi",symb.val()});
+	if (exp)
+	{
+		if (symb.kind==constant) coder.append({"mov","rsi",symb.val()});
+		else coder.append({"movsx","rsi",symb.val()});
+	}
 	coder.append({"mov","rdi","fmt"+to_string(coder.add(fmt))});
 #endif
 #ifdef _WIN64
-	if (exp) coder.append({"movsx","rdx",symb.val()});
+	if (exp)
+	{
+		if (symb.kind==constant) coder.append({"mov","rdx",symb.val()});
+		else coder.append({"movsx","rdx",symb.val()});
+	}
 	coder.append({"mov","rcx","fmt"+to_string(coder.add(fmt))});
 #endif
 	coder.append({"xor","rax","rax"});
@@ -1288,7 +1297,8 @@ void Program::genCode(Coder &coder,SymTab &symtab,const std::string &val) const
 	if (!val.empty()) coder.append({"mov","ax",val});
 	coder.append({"xchg","rbp",base_reg[symtab.getLevel()]});
 	coder.append({"leave"});
-	coder.append({"ret"});
+	if (val=="0") coder.append({"call","exit"});
+	else coder.append({"ret"});
 	for (const auto &i:proc_defs) i->genCode(coder,symtab);
 	for (const auto &i:func_defs) i->genCode(coder,symtab);
 }
