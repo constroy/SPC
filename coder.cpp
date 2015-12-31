@@ -262,7 +262,6 @@ void Coder::calc(const Token &res)
 std::string Coder::listCode() const
 {
 	std::string code="BITS 64\n";
-	code+="extern exit\n";
 	code+="extern scanf\n";
 	code+="extern printf\n";
 	code+="global main\n";

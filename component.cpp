@@ -1101,11 +1101,19 @@ void Read::genCode(Coder &coder,SymTab &symtab) const
 		coder.append({"mov","rdi","fmt"+to_string(coder.add(fmt))});
 #endif
 #ifdef _WIN64
+		// stack-backing for four register parameters (even if only two is used)
+		// always allocate stack space => odd number * 8,
+		// to balance stack and make it aligned on 16 byte boundary
+		coder.append("sub","rsp","28h");
 		coder.append({"lea","rdx","["+symb.addr()+"]"});
 		coder.append({"mov","rcx","fmt"+to_string(coder.add(fmt))});
 #endif
 		coder.append({"xor","rax","rax"});
 		coder.append({"call","scanf"});
+#ifdef _WIN64
+		// release stack memory
+		coder.append("add","rsp","28h");
+#endif
 		coder.pop_reg(symtab.getLevel());
 		coder.sync_reg(symtab);
 	}
@@ -1174,6 +1182,10 @@ void Write::genCode(Coder &coder,SymTab &symtab) const
 	coder.append({"mov","rdi","fmt"+to_string(coder.add(fmt))});
 #endif
 #ifdef _WIN64
+	// stack-backing for four register parameters (even if only two is used)
+	// always allocate stack space => odd number * 8
+	// balance stack and make it aligned on 16 byte boundary
+	coder.append("sub","rsp","28h");
 	if (exp)
 	{
 		if (symb.kind==constant) coder.append({"mov","rdx",symb.val()});
@@ -1183,6 +1195,10 @@ void Write::genCode(Coder &coder,SymTab &symtab) const
 #endif
 	coder.append({"xor","rax","rax"});
 	coder.append({"call","printf"});
+#ifdef _WIN64
+	// release stack memory
+	coder.append("add","rsp","28h");
+#endif
 	coder.pop_reg(symtab.getLevel());
 	coder.sync_reg(symtab);
 }
@@ -1297,8 +1313,7 @@ void Program::genCode(Coder &coder,SymTab &symtab,const std::string &val) const
 	if (!val.empty()) coder.append({"mov","ax",val});
 	coder.append({"xchg","rbp",base_reg[symtab.getLevel()]});
 	coder.append({"leave"});
-	if (val=="0") coder.append({"call","exit"});
-	else coder.append({"ret"});
+	coder.append({"ret"});
 	for (const auto &i:proc_defs) i->genCode(coder,symtab);
 	for (const auto &i:func_defs) i->genCode(coder,symtab);
 }
