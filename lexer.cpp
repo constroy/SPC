@@ -131,12 +131,14 @@ const Token &Lexer::nextToken()
 		{
 			buff+=chr;
 			read();
-			if (chr=='=' || chr=='>')
+			if ((chr=='=' || chr=='>') && symb.count(buff+(char)chr))
 			{
 				buff+=chr;
+				token.type=symb.at(buff);
+				token.s=buff;
 				read();
 			}
-			if (symb.count(buff))
+			else if (symb.count(buff))
 			{
 				token.type=symb.at(buff);
 				token.s=buff;
