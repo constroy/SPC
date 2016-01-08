@@ -131,7 +131,7 @@ const Token &Lexer::nextToken()
 		{
 			buff+=chr;
 			read();
-			if ((chr=='=' || chr=='>') && symb.count(buff+(char)chr))
+			if ((chr=='=' || chr=='>') && symb.count(buff+static_cast<char>(chr)))
 			{
 				buff+=chr;
 				token.type=symb.at(buff);
