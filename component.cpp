@@ -439,7 +439,7 @@ void Factor::scan(Coder &coder,SymTab &symtab)
 					{
 						error(token->s,wrong_arg_num);
 					}
-					coder.putTAC({semicolon});
+					coder.unique();
 				}
 				else if (symb.kind==array)
 				{
@@ -650,7 +650,7 @@ void Condition::scan(Coder &coder,SymTab &symtab)
 {
 	exp0->scan(coder,symtab);
 	exp1->scan(coder,symtab);
-	coder.putTAC({semicolon});
+	coder.unique();
 }
 
 void Condition::genCode(Coder &coder,SymTab &symtab,bool res) const
@@ -845,7 +845,7 @@ void ProcCall::scan(Coder &coder,SymTab &symtab)
 			{
 				error(name->s,wrong_arg_num);
 			}
-			coder.putTAC({semicolon});
+			coder.unique();
 		}
 		else
 		{
@@ -911,9 +911,11 @@ DoWhile::~DoWhile()
 
 void DoWhile::scan(Coder &coder,SymTab &symtab)
 {
+	++symtab.loop_level;
 	if (statement) statement->scan(coder,symtab);
 	condition->scan(coder,symtab);
-	coder.putTAC({semicolon});
+	coder.unique();
+	--symtab.loop_level;
 }
 
 void DoWhile::genCode(Coder &coder,SymTab &symtab) const
@@ -974,8 +976,10 @@ void ForDo::scan(Coder &coder,SymTab &symtab)
 	Token op={eql};
 	coder.putTAC({op,*token0,exp0->res});
 	exp1->scan(coder,symtab);
+	++symtab.loop_level;
 	if (statement) statement->scan(coder,symtab);
-	coder.putTAC({semicolon});
+	coder.unique();
+	--symtab.loop_level;
 }
 
 void ForDo::genCode(Coder &coder,SymTab &symtab) const
@@ -1037,12 +1041,12 @@ void IfThen::scan(Coder &coder,SymTab &symtab)
 	if (statement0)
 	{
 		statement0->scan(coder,symtab);
-		coder.putTAC({semicolon});
+		coder.unique();
 	}
 	if (statement1)
 	{
 		statement1->scan(coder,symtab);
-		coder.putTAC({semicolon});
+		coder.unique();
 	}
 }
 
@@ -1088,7 +1092,7 @@ void Read::scan(Coder &coder,SymTab &symtab)
 		if (symb.kind==variable) symtab.refer(i->s);
 		else error(i->s,cannot_read);
 	}
-	coder.putTAC({semicolon});
+	coder.unique();
 }
 
 void Read::genCode(Coder &coder,SymTab &symtab) const
@@ -1159,7 +1163,6 @@ Write::~Write()
 void Write::scan(Coder &coder,SymTab &symtab)
 {
 	if (exp) exp->scan(coder,symtab);
-	coder.putTAC({semicolon});
 }
 
 void Write::genCode(Coder &coder,SymTab &symtab) const
