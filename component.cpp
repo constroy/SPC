@@ -378,6 +378,11 @@ Factor::~Factor()
 	delete exp;
 	for (const auto &i:arg_list) delete i;
 }
+const Factor *Factor::getFactor() const
+{
+	if (token) return this;
+	else return exp->getFactor();
+}
 
 void Factor::scan(Coder &coder,SymTab &symtab)
 {
@@ -534,7 +539,7 @@ Term::~Term()
 
 const Factor* Term::getFactor() const
 {
-	if (factors.size()==1) return factors[0].second;
+	if (factors.size()==1) return factors[0].second->getFactor();
 	else return nullptr;
 }
 
@@ -590,7 +595,7 @@ Expression::~Expression()
 
 const Factor *Expression::getFactor() const
 {
-	if (terms.size()==1) return terms[0].second->getFactor();
+	if (terms.size()==1 && terms[0].first->type==plus) return terms[0].second->getFactor();
 	else return nullptr;
 }
 
@@ -1104,7 +1109,7 @@ void Read::genCode(Coder &coder,SymTab &symtab) const
 		// stack-backing for four register parameters (even if only two is used)
 		// always allocate stack space => odd number * 8,
 		// to balance stack and make it aligned on 16 byte boundary
-		coder.append("sub","rsp","28h");
+		coder.append({"sub","rsp","28h"});
 		coder.append({"lea","rdx","["+symb.addr()+"]"});
 		coder.append({"mov","rcx","fmt"+to_string(coder.add(fmt))});
 #endif
@@ -1112,7 +1117,7 @@ void Read::genCode(Coder &coder,SymTab &symtab) const
 		coder.append({"call","scanf"});
 #ifdef _WIN64
 		// release stack memory
-		coder.append("add","rsp","28h");
+		coder.append({"add","rsp","28h"});
 #endif
 		coder.pop_reg(symtab.getLevel());
 		coder.sync_reg(symtab);
@@ -1166,9 +1171,16 @@ void Write::genCode(Coder &coder,SymTab &symtab) const
 	{
 		const Factor *factor=exp->getFactor();
 		exp->genCode(coder,symtab);
-		if (factor) symtab.find(factor->token->s,symb);
-		else symtab.find(exp->res.s,symb);
-		fmt+=symb.type==int_t?"%hd":"%c";
+		if (factor)
+		{
+			symtab.find(factor->token->s,symb);
+			fmt+=symb.type==int_t?"%hd":"%c";
+		}
+		else
+		{
+			fmt+="%hd";
+		}
+		symtab.find(exp->res.s,symb);
 	}
 	fmt+="', 0Ah";
 	coder.save_reg(symtab);
@@ -1185,7 +1197,7 @@ void Write::genCode(Coder &coder,SymTab &symtab) const
 	// stack-backing for four register parameters (even if only two is used)
 	// always allocate stack space => odd number * 8
 	// balance stack and make it aligned on 16 byte boundary
-	coder.append("sub","rsp","28h");
+	coder.append({"sub","rsp","28h"});
 	if (exp)
 	{
 		if (symb.kind==constant) coder.append({"mov","rdx",symb.val()});
@@ -1197,7 +1209,7 @@ void Write::genCode(Coder &coder,SymTab &symtab) const
 	coder.append({"call","printf"});
 #ifdef _WIN64
 	// release stack memory
-	coder.append("add","rsp","28h");
+	coder.append({"add","rsp","28h"});
 #endif
 	coder.pop_reg(symtab.getLevel());
 	coder.sync_reg(symtab);

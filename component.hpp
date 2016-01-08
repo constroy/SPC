@@ -74,6 +74,7 @@ struct Factor
 {
 	Factor(Lexer &lexer);
 	~Factor();
+	const Factor *getFactor() const;
 	void scan(Coder &coder,SymTab &symtab);
 	void genCode(Coder &coder,SymTab &symtab) const;
 	Token *token;
