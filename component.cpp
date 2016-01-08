@@ -974,7 +974,7 @@ void ForDo::scan(Coder &coder,SymTab &symtab)
 	Token op={eql};
 	coder.putTAC({op,*token0,exp0->res});
 	exp1->scan(coder,symtab);
-	statement->scan(coder,symtab);
+	if (statement) statement->scan(coder,symtab);
 	coder.putTAC({semicolon});
 }
 
@@ -998,7 +998,7 @@ void ForDo::genCode(Coder &coder,SymTab &symtab) const
 		i0=coder.append({"cmp",iter.val(),dest.val()});
 	}
 	i1=coder.append({token1->type==word_to?"jg":"jl"});
-	statement->genCode(coder,symtab);
+	if (statement) statement->genCode(coder,symtab);
 	coder.append({token1->type==word_to?"inc":"dec",iter.val()});
 	coder.append({"jmp","label_"+to_string(i0)});
 	coder.at(i1)[1]="label_"+to_string(coder.getTextSize());
