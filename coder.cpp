@@ -79,11 +79,11 @@ void Coder::unique()
 	for (int i=0;i<(int)tacs.size();++i) if (tacs[i][0].type!=semicolon)
 	{
 		tacs2.push(tacs[i]);
-		//
+		/*
 		TAC tac=tacs[i];
 		printf("unique: %d %s %s %s\n",tac[0].type,tac[1].s.c_str(),
 				tac[2].s.c_str(),tac[3].s.c_str());
-		//
+		*/
 		if (tacs[i][1].s=="#"+to_string(i))
 		{
 			symtab.insert(tacs[i][1].s,symb);
@@ -244,18 +244,18 @@ void Coder::transTAC(const TAC &tac)
 
 void Coder::calc(const Token &res)
 {
-	printf("calc: %s\n",res.s.c_str());
+	//printf("calc: %s\n",res.s.c_str());
 	if (!tacs2.empty() && tacs2.front()[1]==res)
 	{
-		//
+		/*
 		TAC tac=tacs2.front();
 		printf("calc: %d %s %s %s\n",tac[0].type,tac[1].s.c_str(),
 				tac[2].s.c_str(),tac[3].s.c_str());
-		//
+		*/
 		transTAC(tacs2.front());
 		tacs2.pop();
 	}
-	puts("----------------------------");
+	//puts("----------------------------");
 }
 
 

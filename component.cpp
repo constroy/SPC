@@ -439,7 +439,7 @@ void Factor::scan(Coder &coder,SymTab &symtab)
 					{
 						error(token->s,wrong_arg_num);
 					}
-					coder.unique();
+					coder.putTAC({semicolon});
 				}
 				else if (symb.kind==array)
 				{
@@ -650,7 +650,7 @@ void Condition::scan(Coder &coder,SymTab &symtab)
 {
 	exp0->scan(coder,symtab);
 	exp1->scan(coder,symtab);
-	coder.unique();
+	coder.putTAC({semicolon});
 }
 
 void Condition::genCode(Coder &coder,SymTab &symtab,bool res) const
@@ -845,7 +845,7 @@ void ProcCall::scan(Coder &coder,SymTab &symtab)
 			{
 				error(name->s,wrong_arg_num);
 			}
-			coder.unique();
+			coder.putTAC({semicolon});
 		}
 		else
 		{
@@ -914,7 +914,7 @@ void DoWhile::scan(Coder &coder,SymTab &symtab)
 	++symtab.loop_level;
 	if (statement) statement->scan(coder,symtab);
 	condition->scan(coder,symtab);
-	coder.unique();
+	coder.putTAC({semicolon});
 	--symtab.loop_level;
 }
 
@@ -978,7 +978,7 @@ void ForDo::scan(Coder &coder,SymTab &symtab)
 	exp1->scan(coder,symtab);
 	++symtab.loop_level;
 	if (statement) statement->scan(coder,symtab);
-	coder.unique();
+	coder.putTAC({semicolon});
 	--symtab.loop_level;
 }
 
@@ -1041,12 +1041,12 @@ void IfThen::scan(Coder &coder,SymTab &symtab)
 	if (statement0)
 	{
 		statement0->scan(coder,symtab);
-		coder.unique();
+		coder.putTAC({semicolon});
 	}
 	if (statement1)
 	{
 		statement1->scan(coder,symtab);
-		coder.unique();
+		coder.putTAC({semicolon});
 	}
 }
 
@@ -1092,7 +1092,7 @@ void Read::scan(Coder &coder,SymTab &symtab)
 		if (symb.kind==variable) symtab.refer(i->s);
 		else error(i->s,cannot_read);
 	}
-	coder.unique();
+	coder.putTAC({semicolon});
 }
 
 void Read::genCode(Coder &coder,SymTab &symtab) const
@@ -1163,6 +1163,7 @@ Write::~Write()
 void Write::scan(Coder &coder,SymTab &symtab)
 {
 	if (exp) exp->scan(coder,symtab);
+	coder.putTAC({semicolon});
 }
 
 void Write::genCode(Coder &coder,SymTab &symtab) const

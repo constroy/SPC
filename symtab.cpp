@@ -153,7 +153,7 @@ void SymTab::alloc()
 		{
 			symb.offset=local_p-=symb.size;
 			//
-			printf("alloc: mem %d to: %s\n",symb.offset,i.first.c_str());
+			//printf("alloc: mem %d to: %s\n",symb.offset,i.first.c_str());
 			//
 		}
 	}
@@ -169,7 +169,7 @@ void SymTab::alloc()
 			it->second.reg=free_reg[i];
 			reg_symb.push_back(it->second);
 			//
-			printf("alloc: reg %s to: %s\n",free_reg[i],it->first.c_str());
+			//printf("alloc: reg %s to: %s\n",free_reg[i],it->first.c_str());
 			//
 		}
 		else
