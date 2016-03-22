@@ -378,6 +378,7 @@ Factor::~Factor()
 	delete exp;
 	for (const auto &i:arg_list) delete i;
 }
+
 const Factor *Factor::getFactor() const
 {
 	if (token) return this;
