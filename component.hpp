@@ -119,7 +119,7 @@ struct Condition
 struct Statement
 {
 	static Statement *bear(Lexer &lexer);
-	virtual ~Statement()=0;
+	virtual ~Statement();
 	virtual void scan(Coder &coder,SymTab &symtab)=0;
 	virtual void genCode(Coder &coder,SymTab &symtab) const=0;
 };
@@ -127,7 +127,7 @@ struct Statement
 struct Assignment: Statement
 {
 	Assignment(Token token,Expression *exp,Lexer &lexer);
-	~Assignment() override;
+	virtual ~Assignment() override;
 	virtual void scan(Coder &coder,SymTab &symtab) override;
 	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	Token *dest;
@@ -137,7 +137,7 @@ struct Assignment: Statement
 struct ProcCall: Statement
 {
 	ProcCall(Token token,Lexer &lexer);
-	~ProcCall() override;
+	virtual ~ProcCall() override;
 	virtual void scan(Coder &coder,SymTab &symtab) override;
 	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	Token *name;
@@ -147,7 +147,7 @@ struct ProcCall: Statement
 struct DoWhile: Statement
 {
 	DoWhile(Lexer &lexer);
-	~DoWhile() override;
+	virtual ~DoWhile() override;
 	virtual void scan(Coder &coder,SymTab &symtab) override;
 	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	Statement *statement;
@@ -157,7 +157,7 @@ struct DoWhile: Statement
 struct ForDo: Statement
 {
 	ForDo(Lexer &lexer);
-	~ForDo() override;
+	virtual ~ForDo() override;
 	virtual void scan(Coder &coder,SymTab &symtab) override;
 	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	Token *token0,*token1;
@@ -168,7 +168,7 @@ struct ForDo: Statement
 struct IfThen: Statement
 {
 	IfThen(Lexer &lexer);
-	~IfThen() override;
+	virtual ~IfThen() override;
 	virtual void scan(Coder &coder,SymTab &symtab) override;
 	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	Condition *condition;
@@ -177,7 +177,7 @@ struct IfThen: Statement
 struct Read: Statement
 {
 	Read(Lexer &lexer);
-	~Read() override;
+	virtual ~Read() override;
 	virtual void scan(Coder &coder,SymTab &symtab) override;
 	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	std::vector<Token*> tokens;
@@ -185,7 +185,7 @@ struct Read: Statement
 struct Write: Statement
 {
 	Write(Lexer &lexer);
-	~Write() override;
+	virtual ~Write() override;
 	virtual void scan(Coder &coder,SymTab &symtab) override;
 	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	Token *token;
@@ -195,11 +195,12 @@ struct Write: Statement
 struct Block: Statement
 {
 	Block(Lexer &lexer);
-	~Block();
+	virtual ~Block() override;
 	virtual void scan(Coder &coder,SymTab &symtab) override;
 	virtual void genCode(Coder &coder,SymTab &symtab) const override;
 	std::vector<Statement*> statements;
 };
+
 struct Program
 {
 	Program(Lexer &Lexer);
